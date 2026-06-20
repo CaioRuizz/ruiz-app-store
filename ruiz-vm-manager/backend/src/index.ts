@@ -9,7 +9,10 @@ import { proxyConsole } from './vms';
 
 const app = express();
 const server = createServer(app);
-const wss = new WebSocketServer({ noServer: true });
+const wss = new WebSocketServer({
+  noServer: true,
+  handleProtocols: (protocols) => protocols.has('binary') ? 'binary' : false,
+});
 
 app.use(cors());
 app.use(express.json());

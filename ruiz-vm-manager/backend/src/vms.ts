@@ -228,6 +228,8 @@ export function startVM(vmId: string): void {
     '-netdev', 'user,id=net0',
     '-device', 'virtio-net-pci,netdev=net0',
     '-vnc', `127.0.0.1:${vncDisplay},websocket=${wsPort}`,
+    // Redirect serial (ttyS0) to VGA virtual console so boot output is visible over VNC
+    '-serial', 'vc:1024x768',
     '-no-reboot',
   ];
 
@@ -299,8 +301,8 @@ export function proxyConsole(vmId: string, clientWs: WebSocket): void {
     return;
   }
 
-  // QEMU exposes a WebSocket VNC server; proxy frames directly
-  const qemuWs = new WebSocket(`ws://127.0.0.1:${vm.ws_port}`);
+  // QEMU's VNC WebSocket requires the 'binary' subprotocol
+  const qemuWs = new WebSocket(`ws://127.0.0.1:${vm.ws_port}`, ['binary']);
 
   qemuWs.on('open', () => {
     clientWs.on('message', (data, isBinary) => {
