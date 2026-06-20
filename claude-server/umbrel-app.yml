@@ -4,7 +4,7 @@ name: Claude Server
 tagline: Run Claude Code from any device
 icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/claude-server/icon.svg
 category: developer-tools
-version: "1.0.1"
+version: "1.0.2"
 tagline: Run Claude Code from any device
 description: >-
   Self-hosted Claude Code server with a web terminal interface. Start Claude Code
