@@ -1,7 +1,9 @@
 manifestVersion: 1
 id: ruiz-claude-server
-category: developer-tools
 name: Claude Server
+tagline: Run Claude Code from any device
+icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/claude-server/icon.svg
+category: developer-tools
 version: "1.0.1"
 tagline: Run Claude Code from any device
 description: >-
