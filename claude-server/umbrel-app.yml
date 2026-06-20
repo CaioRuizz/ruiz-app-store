@@ -14,7 +14,7 @@ description: >-
   On first launch, open the app and complete the one-time setup: set an admin
   password and paste your Anthropic API key. Your key is stored locally on your
   Umbrel and never leaves it.
-developer: ""
+developer: "Caio Ruiz"
 website: ""
 dependencies: []
 repo: ""
