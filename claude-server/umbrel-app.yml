@@ -1,5 +1,5 @@
 manifestVersion: 1
-id: claude-server
+id: ruiz-claude-server
 category: developer-tools
 name: Claude Server
 version: "1.0.0"
