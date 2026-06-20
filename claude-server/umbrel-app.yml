@@ -2,7 +2,7 @@ manifestVersion: 1
 id: ruiz-claude-server
 category: developer-tools
 name: Claude Server
-version: "1.0.0"
+version: "1.0.1"
 tagline: Run Claude Code from any device
 description: >-
   Self-hosted Claude Code server with a web terminal interface. Start Claude Code
