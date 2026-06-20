@@ -11,18 +11,17 @@ description: >-
   Sessions persist when you disconnect — reconnect from another device and pick
   up exactly where you left off, like a web-based tmux for Claude Code.
 
-
   On first launch, open the app and complete the one-time setup: set an admin
   password and paste your Anthropic API key. Your key is stored locally on your
   Umbrel and never leaves it.
 developer: "Caio Ruiz"
-website: ""
+website: "https://github.com"
 dependencies: []
-repo: ""
-support: ""
+repo: "https://github.com/ruiz-app-store"
+support: "https://github.com/ruiz-app-store/issues"
 port: 4829
 gallery: []
 path: ""
 defaultUsername: ""
 defaultPassword: ""
-releaseNotes: ""
+releaseNotes: "Initial release"
