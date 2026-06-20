@@ -1,0 +1,35 @@
+version: "3.7"
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "${APP_PORT:-3200}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    restart: on-failure
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATA_DIR=/data
+      - WORKSPACES_DIR=/workspaces
+    volumes:
+      - "${APP_DATA_DIR:-./umbrel-data}/data:/data"
+      - "${APP_DATA_DIR:-./umbrel-data}/workspaces:/workspaces"
+    restart: on-failure
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+    restart: on-failure

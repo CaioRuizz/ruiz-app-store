@@ -1,0 +1,27 @@
+manifestVersion: 1
+id: claude-server
+category: developer-tools
+name: Claude Server
+version: "1.0.0"
+tagline: Run Claude Code from any device
+description: >-
+  Self-hosted Claude Code server with a web terminal interface. Start Claude Code
+  sessions on your Umbrel and control them from your Mac, iPad, or any browser.
+  Sessions persist when you disconnect — reconnect from another device and pick
+  up exactly where you left off, like a web-based tmux for Claude Code.
+
+
+  On first launch, open the app and complete the one-time setup: set an admin
+  password and paste your Anthropic API key. Your key is stored locally on your
+  Umbrel and never leaves it.
+developer: ""
+website: ""
+dependencies: []
+repo: ""
+support: ""
+port: 3200
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: ""

@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+
+/* Override xterm default background to blend with our theme */
+.xterm-viewport { overflow-y: hidden !important; }
