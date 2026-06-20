@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
-import { spawn } from 'child_process'
+import * as pty from 'node-pty'
 import { db } from '../db'
 
 const router = Router()
@@ -43,23 +43,41 @@ router.post('/complete', async (req, res) => {
   res.json({ ok: true })
 })
 
-// SSE stream that runs `claude login` and forwards output to the client
+// SSE stream that starts `claude` with a PTY, sends /login, and streams output
 router.get('/claude-login', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream')
   res.setHeader('Cache-Control', 'no-cache')
   res.setHeader('Connection', 'keep-alive')
 
-  const proc = spawn('claude', ['login'], {
-    env: { ...process.env, HOME: process.env.HOME || '/root' },
-  })
-
   const send = (data: object) => res.write(`data: ${JSON.stringify(data)}\n\n`)
 
-  proc.stdout.on('data', (chunk: Buffer) => send({ text: chunk.toString() }))
-  proc.stderr.on('data', (chunk: Buffer) => send({ text: chunk.toString() }))
+  const proc = pty.spawn('claude', [], {
+    name: 'xterm-256color',
+    cols: 220,
+    rows: 50,
+    env: {
+      ...process.env,
+      HOME: process.env.HOME || '/root',
+      TERM: 'xterm-256color',
+    } as Record<string, string>,
+  })
 
-  proc.on('close', (code) => {
-    send({ done: true, success: code === 0 })
+  // Send /login once claude starts up
+  setTimeout(() => proc.write('/login\r'), 1500)
+
+  let loggedIn = false
+
+  proc.onData((data) => {
+    send({ text: data })
+    if (!loggedIn && (data.includes('Logged in') || data.includes('logged in as') || data.includes('Successfully authenticated'))) {
+      loggedIn = true
+      // Give it a moment to finish writing credentials, then exit
+      setTimeout(() => { try { proc.write('/exit\r') } catch {} }, 500)
+    }
+  })
+
+  proc.onExit(({ exitCode }) => {
+    send({ done: true, success: loggedIn || exitCode === 0 })
     res.end()
   })
 

@@ -23,7 +23,7 @@ services:
     restart: on-failure
 
   backend:
-    image: caioruizz/claude-server-backend:1.2.0
+    image: caioruizz/claude-server-backend:1.2.1
     environment:
       - NODE_ENV=production
       - PORT=3001
