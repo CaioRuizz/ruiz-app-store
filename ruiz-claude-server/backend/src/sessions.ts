@@ -17,7 +17,7 @@ export interface ActiveSession {
 export class SessionManager {
   private sessions = new Map<string, ActiveSession>()
 
-  create(name: string, workspace: string, apiKey: string): string {
+  create(name: string, workspace: string, apiKey?: string): string {
     const id = uuidv4()
 
     const ptyProcess = pty.spawn('claude', [], {
@@ -27,7 +27,7 @@ export class SessionManager {
       cwd: workspace,
       env: {
         ...process.env,
-        ANTHROPIC_API_KEY: apiKey,
+        ...(apiKey ? { ANTHROPIC_API_KEY: apiKey } : {}),
         TERM: 'xterm-256color',
         COLORTERM: 'truecolor',
         HOME: process.env.HOME || '/root',

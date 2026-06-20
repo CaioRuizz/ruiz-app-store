@@ -32,6 +32,7 @@ services:
     volumes:
       - "${APP_DATA_DIR:-./umbrel-data}/data:/data"
       - "${APP_DATA_DIR:-./umbrel-data}/workspaces:/workspaces"
+      - "${APP_DATA_DIR:-./umbrel-data}/claude-config:/root/.claude"
     networks:
       - umbrel_main_network
     restart: on-failure

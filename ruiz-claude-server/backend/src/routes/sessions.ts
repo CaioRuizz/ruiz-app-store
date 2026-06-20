@@ -19,10 +19,17 @@ export function sessionRoutes(manager: SessionManager) {
     const { name, workspace } = req.body as { name?: string; workspace?: string }
     if (!name || !workspace) return res.status(400).json({ error: 'name and workspace required' })
 
-    const apiKeyRow = db.prepare('SELECT value FROM config WHERE key = ?').get('api_key') as { value: string } | undefined
-    if (!apiKeyRow) return res.status(500).json({ error: 'API key not configured' })
+    const authModeRow = db.prepare('SELECT value FROM config WHERE key = ?').get('auth_mode') as { value: string } | undefined
+    const authMode = authModeRow?.value ?? 'api_key'
 
-    const id = manager.create(name, workspace, apiKeyRow.value)
+    let apiKey: string | undefined
+    if (authMode === 'api_key') {
+      const apiKeyRow = db.prepare('SELECT value FROM config WHERE key = ?').get('api_key') as { value: string } | undefined
+      if (!apiKeyRow) return res.status(500).json({ error: 'API key not configured' })
+      apiKey = apiKeyRow.value
+    }
+
+    const id = manager.create(name, workspace, apiKey)
     res.json({ id })
   })
 

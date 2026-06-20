@@ -25,8 +25,8 @@ async function req<T = unknown>(path: string, init: RequestInit = {}): Promise<T
 export const api = {
   setup: {
     status: () => req<{ configured: boolean }>('/api/setup/status'),
-    complete: (password: string, apiKey: string) =>
-      req('/api/setup/complete', { method: 'POST', body: JSON.stringify({ password, apiKey }) }),
+    complete: (password: string, authMode: 'api_key' | 'subscription', apiKey?: string) =>
+      req('/api/setup/complete', { method: 'POST', body: JSON.stringify({ password, authMode, apiKey }) }),
   },
   auth: {
     login: (password: string) =>
