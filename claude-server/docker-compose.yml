@@ -13,9 +13,7 @@ services:
     restart: on-failure
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: caioruizz/claude-server-backend:1.0.0
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -27,9 +25,7 @@ services:
     restart: on-failure
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: caioruizz/claude-server-frontend:1.0.0
     environment:
       - NODE_ENV=production
     restart: on-failure
