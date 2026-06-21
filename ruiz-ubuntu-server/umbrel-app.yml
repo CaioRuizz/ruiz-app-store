@@ -1,0 +1,26 @@
+manifestVersion: 1
+id: ruiz-ubuntu-server
+name: Ubuntu Server
+tagline: A bare Ubuntu server with SSH access on your host network
+icon: https://assets.ubuntu.com/v1/29985a98-ubuntu-logo32.png
+category: developer-tools
+version: "1.0.0"
+description: >-
+  A plain Ubuntu 24.04 LTS server running directly on your host network with
+  OpenSSH enabled. Connect via SSH on port 2222 using the credentials set
+  during setup.
+
+  Useful as a general-purpose Linux environment, a build machine, or a
+  jump host that lives inside your Umbrel's network.
+
+developer: "Caio Ruiz"
+website: "https://github.com/CaioRuizz/ruiz-app-store"
+dependencies: []
+repo: "https://github.com/CaioRuizz/ruiz-app-store"
+support: "https://github.com/CaioRuizz/ruiz-app-store/issues"
+port: 2222
+gallery: []
+path: ""
+defaultUsername: "ubuntu"
+defaultPassword: "umbrel"
+releaseNotes: "Initial release"
