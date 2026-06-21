@@ -29,7 +29,11 @@ grep -qE '^Port ' /etc/ssh/sshd_config \
 /usr/sbin/sshd
 
 # Start web terminal (foreground) — HTTP basic auth, shell runs as $SSH_USER
+USER_UID=$(id -u "$SSH_USER")
+USER_GID=$(id -g "$SSH_USER")
 exec ttyd \
     --port "$WEB_PORT" \
     --credential "$SSH_USER:$SSH_PASSWORD" \
-    runuser -l "$SSH_USER"
+    --uid "$USER_UID" \
+    --gid "$USER_GID" \
+    bash -l
