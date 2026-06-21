@@ -28,8 +28,7 @@ grep -qE '^Port ' /etc/ssh/sshd_config \
 # Start SSH daemon
 /usr/sbin/sshd
 
-# Start web terminal (foreground) — root can su without a password
+# Start web terminal (foreground) — no ttyd auth, Umbrel's own auth is the gate
 exec ttyd \
     --port "$WEB_PORT" \
-    --credential "$SSH_USER:$SSH_PASSWORD" \
     /bin/su - "$SSH_USER"

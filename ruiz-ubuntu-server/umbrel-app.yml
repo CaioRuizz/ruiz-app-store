@@ -4,7 +4,7 @@ name: Ubuntu Server
 tagline: A bare Ubuntu server with SSH access on your host network
 icon: https://assets.ubuntu.com/v1/29985a98-ubuntu-logo32.png
 category: developer-tools
-version: "1.1.2"
+version: "1.1.3"
 description: >-
   A plain Ubuntu 24.04 LTS server running directly on your host network with
   OpenSSH and a browser-based terminal (ttyd).
@@ -25,4 +25,4 @@ gallery: []
 path: ""
 defaultUsername: "ubuntu"
 defaultPassword: "umbrel"
-releaseNotes: "Fix web terminal shell exit by using su instead of uid/gid drop"
+releaseNotes: "Fix Safari WebSocket failure by removing ttyd Basic Auth"
