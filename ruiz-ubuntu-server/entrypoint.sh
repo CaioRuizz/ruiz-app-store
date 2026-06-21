@@ -28,12 +28,8 @@ grep -qE '^Port ' /etc/ssh/sshd_config \
 # Start SSH daemon
 /usr/sbin/sshd
 
-# Start web terminal (foreground) — HTTP basic auth, shell runs as $SSH_USER
-USER_UID=$(id -u "$SSH_USER")
-USER_GID=$(id -g "$SSH_USER")
+# Start web terminal (foreground) — root can su without a password
 exec ttyd \
     --port "$WEB_PORT" \
     --credential "$SSH_USER:$SSH_PASSWORD" \
-    --uid "$USER_UID" \
-    --gid "$USER_GID" \
-    bash -l
+    /bin/su - "$SSH_USER"
