@@ -58,10 +58,15 @@ export default function VMCard({ vm, onRefresh, onConsole }: Props) {
 
       {/* Credentials */}
       {vm.status === 'running' && (
-        <div className="bg-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-slate-400">
-          <span className="text-slate-500">user: </span>{vm.username}
-          {'  '}
-          <span className="text-slate-500">pass: </span>{vm.password}
+        <div className="bg-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-slate-400 space-y-0.5">
+          <div>
+            <span className="text-slate-500">user: </span>{vm.username}
+            {'  '}
+            <span className="text-slate-500">pass: </span>{vm.password}
+          </div>
+          {vm.ssh_port && (
+            <div><span className="text-slate-500">ssh port: </span>{vm.ssh_port}</div>
+          )}
         </div>
       )}
 
@@ -72,7 +77,9 @@ export default function VMCard({ vm, onRefresh, onConsole }: Props) {
         )}
         {vm.status === 'running' && (
           <>
-            <Button onClick={() => onConsole(vm)} busy={false} variant="blue">Console</Button>
+            {vm.ssh_port && (
+              <Button onClick={() => onConsole(vm)} busy={false} variant="blue">SSH</Button>
+            )}
             <Button onClick={() => run(() => stopVM(vm.id))} busy={busy} variant="yellow">Stop</Button>
             <Button onClick={() => run(() => stopVM(vm.id, true))} busy={busy} variant="slate">Force off</Button>
           </>

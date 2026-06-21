@@ -130,14 +130,16 @@ export async function downloadImage(osId: string): Promise<void> {
   });
 }
 
-function allocatePorts(): { vncDisplay: number; wsPort: number } {
+function allocatePorts(): { vncDisplay: number; wsPort: number; sshPort: number } {
   const db = getDB();
-  const used = db.prepare('SELECT vnc_display, ws_port FROM vms WHERE status != ?').all('deleted') as {
+  const used = db.prepare('SELECT vnc_display, ws_port, ssh_port FROM vms WHERE status != ?').all('deleted') as {
     vnc_display: number | null;
     ws_port: number | null;
+    ssh_port: number | null;
   }[];
   const usedDisplays = new Set(used.map(r => r.vnc_display).filter(Boolean));
   const usedWs = new Set(used.map(r => r.ws_port).filter(Boolean));
+  const usedSsh = new Set(used.map(r => r.ssh_port).filter(Boolean));
 
   let vncDisplay = 1;
   while (usedDisplays.has(vncDisplay)) vncDisplay++;
@@ -145,7 +147,10 @@ function allocatePorts(): { vncDisplay: number; wsPort: number } {
   let wsPort = 5700 + vncDisplay;
   while (usedWs.has(wsPort)) wsPort++;
 
-  return { vncDisplay, wsPort };
+  let sshPort = 2201;
+  while (usedSsh.has(sshPort)) sshPort++;
+
+  return { vncDisplay, wsPort, sshPort };
 }
 
 function createCloudInitDisk(vmDir: string, username: string, password: string, hostname: string): void {
@@ -203,7 +208,7 @@ export function startVM(vmId: string): void {
   const db = getDB();
   const vm = db.prepare('SELECT * FROM vms WHERE id = ?').get(vmId) as {
     id: string; cpus: number; ram: number; vnc_display: number | null; ws_port: number | null;
-    pid: number | null; status: string;
+    ssh_port: number | null; pid: number | null; status: string;
   } | undefined;
 
   if (!vm) throw new Error('VM not found');
@@ -213,8 +218,8 @@ export function startVM(vmId: string): void {
   const diskPath = path.join(vmDir, 'disk.qcow2');
   const seedPath = path.join(vmDir, 'seed.img');
 
-  const { vncDisplay, wsPort } = vm.vnc_display
-    ? { vncDisplay: vm.vnc_display, wsPort: vm.ws_port! }
+  const { vncDisplay, wsPort, sshPort } = vm.vnc_display
+    ? { vncDisplay: vm.vnc_display, wsPort: vm.ws_port!, sshPort: vm.ssh_port! }
     : allocatePorts();
 
   const kvmAvailable = fs.existsSync('/dev/kvm');
@@ -225,7 +230,7 @@ export function startVM(vmId: string): void {
     '-m', String(vm.ram),
     '-drive', `file=${diskPath},format=qcow2,if=virtio`,
     '-drive', `file=${seedPath},format=raw,if=virtio`,
-    '-netdev', 'user,id=net0',
+    '-netdev', `user,id=net0,hostfwd=tcp::${sshPort}-:22`,
     '-device', 'virtio-net-pci,netdev=net0',
     '-vnc', `127.0.0.1:${vncDisplay},websocket=${wsPort}`,
     // Redirect serial (ttyS0) to VGA virtual console so boot output is visible over VNC
@@ -243,8 +248,8 @@ export function startVM(vmId: string): void {
   proc.unref();
 
   db.prepare(`
-    UPDATE vms SET status='running', pid=?, vnc_display=?, ws_port=? WHERE id=?
-  `).run(proc.pid, vncDisplay, wsPort, vmId);
+    UPDATE vms SET status='running', pid=?, vnc_display=?, ws_port=?, ssh_port=? WHERE id=?
+  `).run(proc.pid, vncDisplay, wsPort, sshPort, vmId);
 }
 
 export function stopVM(vmId: string, force = false): void {

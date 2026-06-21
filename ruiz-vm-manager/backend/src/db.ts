@@ -19,6 +19,7 @@ export function initDB(): Database.Database {
       status      TEXT NOT NULL DEFAULT 'creating',
       vnc_display INTEGER,
       ws_port     INTEGER,
+      ssh_port    INTEGER,
       pid         INTEGER,
       username    TEXT NOT NULL DEFAULT 'admin',
       password    TEXT NOT NULL DEFAULT 'changeme',

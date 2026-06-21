@@ -14,7 +14,7 @@ services:
     restart: on-failure
 
   nginx:
-    image: caioruizz/vm-manager-nginx:1.0.1
+    image: caioruizz/vm-manager-nginx:1.0.2
     depends_on:
       - backend
       - frontend
@@ -23,13 +23,15 @@ services:
     restart: on-failure
 
   backend:
-    image: caioruizz/vm-manager-backend:1.0.1
+    image: caioruizz/vm-manager-backend:1.0.2
     environment:
       - NODE_ENV=production
       - PORT=3001
       - DATA_DIR=/data
     volumes:
       - "${APP_DATA_DIR:-./umbrel-data}/data:/data"
+    ports:
+      - "2201-2220:2201-2220"
     devices:
       - /dev/kvm:/dev/kvm
     cap_add:
@@ -39,7 +41,7 @@ services:
     restart: on-failure
 
   frontend:
-    image: caioruizz/vm-manager-frontend:1.0.1
+    image: caioruizz/vm-manager-frontend:1.0.2
     environment:
       - NODE_ENV=production
     networks:

@@ -12,6 +12,7 @@ export interface VM {
   password: string;
   vnc_display: number | null;
   ws_port: number | null;
+  ssh_port: number | null;
   created_at: string;
 }
 
