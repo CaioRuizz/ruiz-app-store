@@ -2,21 +2,11 @@ version: "3.7"
 
 services:
   server:
-    image: ubuntu:24.04
+    image: caioruizz/ruiz-ubuntu-server:1.0.0
     network_mode: host
     restart: unless-stopped
     environment:
       SSH_USER: ubuntu
       SSH_PASSWORD: umbrel
-    command: >
-      bash -c "
-        apt-get update -qq &&
-        apt-get install -y -qq openssh-server &&
-        mkdir -p /run/sshd &&
-        useradd -m -s /bin/bash $$SSH_USER 2>/dev/null || true &&
-        echo \"$$SSH_USER:$$SSH_PASSWORD\" | chpasswd &&
-        sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config &&
-        sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config &&
-        echo 'Port 2222' >> /etc/ssh/sshd_config &&
-        /usr/sbin/sshd -D
-      "
+      SSH_PORT: "2222"
+      WEB_PORT: "4000"
