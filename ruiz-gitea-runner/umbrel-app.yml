@@ -4,7 +4,7 @@ name: Gitea Runner
 tagline: Self-hosted CI/CD runner for Gitea Actions
 icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-gitea-runner/icon.svg
 category: developer-tools
-version: "1.0.1"
+version: "1.1.0"
 description: >-
   Connect your Umbrel to Gitea Actions as a self-hosted runner. Register
   one or more Gitea instances through the web UI — no config files needed.
@@ -26,4 +26,4 @@ gallery: []
 path: ""
 defaultUsername: ""
 defaultPassword: ""
-releaseNotes: "Upgrade to Node.js 24 and update better-sqlite3 for Node 24 compatibility"
+releaseNotes: "Redesigned UI with stats dashboard, colored runner cards, SVG icons, and improved log viewer"
