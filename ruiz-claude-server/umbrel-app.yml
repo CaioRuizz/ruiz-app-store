@@ -4,7 +4,7 @@ name: Claude Server
 tagline: Run Claude Code from any device
 icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-claude-server/icon.svg
 category: developer-tools
-version: "1.2.2"
+version: "1.2.3"
 description: >-
   Self-hosted Claude Code server with a web terminal interface. Start Claude Code
   sessions on your Umbrel and control them from your Mac, iPad, or any browser.
@@ -24,4 +24,4 @@ gallery: []
 path: ""
 defaultUsername: ""
 defaultPassword: ""
-releaseNotes: "Add Claude Pro/Max subscription login as an alternative to API keys"
+releaseNotes: "Upgrade to Node.js 24 and update better-sqlite3 for Node 24 compatibility"
