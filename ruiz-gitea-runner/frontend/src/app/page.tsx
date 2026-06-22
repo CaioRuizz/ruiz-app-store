@@ -177,7 +177,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen" style={{ background: G.bg }}>
+      <div className="flex items-center justify-center min-h-screen" style={{ background: G.bg }}>
         <div className="flex items-center gap-3" style={{ color: G.textMut }}>
           <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 12a9 9 0 1 1-6.219-8.56" />
@@ -189,305 +189,239 @@ export default function DashboardPage() {
   }
 
   const runningCount = runners.filter(r => r.running).length
-  const errorCount   = runners.filter(r => r.status === 'error').length
+  const errorCount = runners.filter(r => r.status === 'error').length
   const stoppedCount = runners.length - runningCount - errorCount
 
   return (
-    <div className="min-h-screen" style={{ background: G.bg }}>
+    <div
+      className="min-h-screen overflow-hidden"
+      style={{
+        background: 'linear-gradient(180deg, #05080d 0%, #0c1320 45%, #0d1117 100%)',
+      }}
+    >
+      <div className="absolute inset-x-0 top-0 h-72 overflow-hidden pointer-events-none">
+        <div className="absolute left-1/4 top-10 h-72 w-72 rounded-full bg-[#5d9d2f]/20 blur-3xl" />
+        <div className="absolute right-16 top-24 h-56 w-56 rounded-full bg-[#4a7bff]/15 blur-3xl" />
+      </div>
 
-      {/* Top accent line */}
-      <div className="h-px" style={{ background: `linear-gradient(to right, transparent, ${G.green}, transparent)` }} />
+      <div className="relative max-w-6xl mx-auto px-6 py-8">
+        <header className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-[0_30px_90px_-60px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(96,153,38,0.18),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(88,166,255,0.12),_transparent_30%)]" />
+          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-[#609926]/10 ring-1 ring-[#609926]/20">
+                  <GiteaLogo size={24} />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.35em] text-[#6e7681]">Gitea Runner</p>
+                  <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Manage your Gitea action runners</h1>
+                </div>
+              </div>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-[#b7c5d4]">
+                Monitor runner health, start/stop instances, and view live logs from a polished dashboard.
+              </p>
+            </div>
 
-      {/* App header bar */}
-      <header
-        className="sticky top-0 z-10 px-6 py-3 flex items-center justify-between"
-        style={{ background: G.surface, borderBottom: `1px solid ${G.border}` }}
-      >
-        <div className="flex items-center gap-2.5">
-          <GiteaLogo size={22} />
-          <span className="text-sm font-semibold" style={{ color: G.text }}>Gitea Runner</span>
-        </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button
+                onClick={loadRunners}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-[#c9d1d9] transition hover:border-white/20 hover:bg-white/10"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                  <path d="M21 3v5h-5" />
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                  <path d="M3 21v-5h5" />
+                </svg>
+                Refresh
+              </button>
+              <button
+                onClick={() => router.push('/runners/new')}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#609926] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#6aaa28]"
+              >
+                <span className="text-lg">+</span>
+                Add Runner
+              </button>
+            </div>
+          </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={loadRunners}
-            title="Refresh"
-            className="p-1.5 rounded-md transition-colors"
-            style={{ color: G.textMut }}
-            onMouseEnter={e => { (e.currentTarget.style.background = G.elevated); (e.currentTarget.style.color = G.text) }}
-            onMouseLeave={e => { (e.currentTarget.style.background = 'transparent'); (e.currentTarget.style.color = G.textMut) }}
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-              <path d="M21 3v5h-5" />
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-              <path d="M3 21v-5h5" />
-            </svg>
-          </button>
-
-          <button
-            onClick={() => router.push('/runners/new')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold text-white transition-all"
-            style={{ background: G.green }}
-            onMouseEnter={e => { (e.currentTarget.style.background = G.greenHi) }}
-            onMouseLeave={e => { (e.currentTarget.style.background = G.green) }}
-          >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Add Runner
-          </button>
-        </div>
-      </header>
-
-      <div className="max-w-3xl mx-auto px-6 py-7">
-
-        {/* Stats */}
-        {runners.length > 0 && (
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <StatCard label="Total"   value={runners.length} color={G.text} />
-            <StatCard label="Running" value={runningCount}   color="#3fb950" />
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <StatCard label="Total runners" value={runners.length} color={G.text} />
+            <StatCard label="Running" value={runningCount} color="#3fb950" />
             <StatCard
               label={errorCount > 0 ? 'Errors' : 'Stopped'}
               value={errorCount > 0 ? errorCount : stoppedCount}
               color={errorCount > 0 ? '#f85149' : G.textMut}
             />
           </div>
-        )}
+        </header>
 
-        {/* Empty state */}
-        {runners.length === 0 ? (
-          <div className="text-center py-24">
-            <div
-              className="inline-flex items-center justify-center w-10 h-10 rounded-xl mb-5"
-              style={{ background: G.surface, border: `1px solid ${G.border}` }}
-            >
-              <GiteaLogo size={20} />
+        <main className="mt-6 space-y-6">
+          {runners.length === 0 ? (
+            <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-12 text-center shadow-2xl shadow-black/20 backdrop-blur-xl">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-[#609926]/10 ring-1 ring-[#609926]/20">
+                <GiteaLogo size={28} />
+              </div>
+              <p className="text-xl font-semibold text-white">No runners connected yet</p>
+              <p className="mt-3 text-sm text-[#b7c5d4]">Register a runner to begin executing your Gitea Actions workflows.</p>
+              <button
+                onClick={() => router.push('/runners/new')}
+                className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-[#609926] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#6aaa28]"
+              >
+                Add your first runner
+              </button>
             </div>
-            <p className="font-medium mb-1" style={{ color: G.textSec }}>No runners yet</p>
-            <p className="text-sm mb-6" style={{ color: G.textMut }}>Add your first runner to execute Gitea Actions</p>
-            <button
-              onClick={() => router.push('/runners/new')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold text-white transition-all"
-              style={{ background: G.green }}
-              onMouseEnter={e => { (e.currentTarget.style.background = G.greenHi) }}
-              onMouseLeave={e => { (e.currentTarget.style.background = G.green) }}
-            >
-              Add your first runner
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {runners.map(runner => {
-              const theme   = STATUS_THEME[runner.status] ?? STATUS_THEME.stopped
-              const isActive   = activeLogs === runner.id
-              const isDeleting = deleteConfirm === runner.id
+          ) : (
+            <div className="space-y-4">
+              {runners.map(runner => {
+                const theme = STATUS_THEME[runner.status] ?? STATUS_THEME.stopped
+                const isActive = activeLogs === runner.id
+                const isDeleting = deleteConfirm === runner.id
+                const labels = runner.labels?.split(',').filter(Boolean) ?? []
 
-              return (
-                <div
-                  key={runner.id}
-                  className="rounded-xl overflow-hidden transition-all"
-                  style={{
-                    background: G.surface,
-                    border: `1px solid ${G.border}`,
-                    borderLeft: `3px solid ${theme.borderLeft}`,
-                  }}
-                >
-                  <div className="px-4 py-3.5">
-                    <div className="flex items-start justify-between gap-4">
-
-                      {/* Left: runner info */}
-                      <div className="flex items-start gap-3 min-w-0">
-                        <div className="mt-1.5">
-                          <StatusDot status={runner.status} />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-semibold text-sm" style={{ color: G.text }}>{runner.name}</span>
-                            <StatusBadge status={runner.status} />
+                return (
+                  <div
+                    key={runner.id}
+                    className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 shadow-[0_20px_70px_-40px_rgba(0,0,0,0.8)] backdrop-blur-xl"
+                  >
+                    <div className="border-b border-white/10 px-5 py-5 sm:px-6">
+                      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="flex items-start gap-4 min-w-0">
+                          <div className="mt-1.5">
+                            <StatusDot status={runner.status} />
                           </div>
-                          <p className="text-xs font-mono mt-1 truncate" style={{ color: G.textMut }}>{runner.gitea_url}</p>
-                          {runner.labels && (
-                            <div className="flex items-center gap-1 mt-1.5 flex-wrap">
-                              {runner.labels.split(',').slice(0, 3).map((l, i) => (
-                                <span
-                                  key={i}
-                                  className="text-xs px-1.5 py-0.5 rounded font-mono"
-                                  style={{ background: G.elevated, color: G.textMut, border: `1px solid ${G.border}` }}
-                                >
-                                  {l.split(':')[0]}
-                                </span>
-                              ))}
-                              {runner.labels.split(',').length > 3 && (
-                                <span className="text-xs" style={{ color: G.textMut }}>
-                                  +{runner.labels.split(',').length - 3}
-                                </span>
-                              )}
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="truncate text-lg font-semibold text-white">{runner.name}</p>
+                              <StatusBadge status={runner.status} />
                             </div>
-                          )}
-                          {runner.status === 'error' && runner.error && (
-                            <p
-                              className="text-xs mt-2 px-2.5 py-1.5 rounded-lg"
-                              style={{ color: '#f85149', background: 'rgba(248,81,73,.08)', border: '1px solid rgba(248,81,73,.2)' }}
-                            >
-                              {runner.error}
-                            </p>
-                          )}
+                            <p className="mt-2 truncate text-sm font-mono text-[#9fa8b3]">{runner.gitea_url}</p>
+                            {labels.length > 0 && (
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {labels.slice(0, 4).map((label, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium text-[#c9d1d9]"
+                                  >
+                                    {label.split(':')[0]}
+                                  </span>
+                                ))}
+                                {labels.length > 4 && (
+                                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-[#8b949e]">
+                                    +{labels.length - 4}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Right: action buttons */}
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {runner.running ? (
-                          <button
-                            onClick={() => handleStop(runner.id)}
-                            disabled={actionLoading === runner.id}
-                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-all disabled:opacity-40"
-                            style={{ background: G.elevated, color: G.textSec, border: `1px solid ${G.border}` }}
-                            onMouseEnter={e => { (e.currentTarget.style.borderColor = G.borderHi) }}
-                            onMouseLeave={e => { (e.currentTarget.style.borderColor = G.border) }}
-                          >
-                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                              <rect x="6" y="6" width="12" height="12" rx="1.5" />
-                            </svg>
-                            Stop
-                          </button>
-                        ) : (
-                          runner.status !== 'pending' && runner.status !== 'registering' && (
+                        <div className="flex flex-wrap gap-2">
+                          {runner.running ? (
                             <button
-                              onClick={() => handleStart(runner.id)}
+                              onClick={() => handleStop(runner.id)}
                               disabled={actionLoading === runner.id}
-                              className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-all disabled:opacity-40"
-                              style={{
-                                background: 'rgba(96,153,38,.15)',
-                                color: '#6aaa28',
-                                border: '1px solid rgba(96,153,38,.3)',
-                              }}
-                              onMouseEnter={e => { (e.currentTarget.style.background = 'rgba(96,153,38,.25)') }}
-                              onMouseLeave={e => { (e.currentTarget.style.background = 'rgba(96,153,38,.15)') }}
+                              className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-[#10151d] px-4 py-2 text-sm font-medium text-[#c9d1d9] transition hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-40"
                             >
-                              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M8 5v14l11-7z" />
-                              </svg>
-                              Start
+                              <span className="h-3.5 w-3.5 rounded-sm bg-[#f85149]" />
+                              Stop
                             </button>
-                          )
-                        )}
-
-                        {runner.running && (
-                          <button
-                            onClick={() => isActive ? closeLogs() : openLogs(runner.id)}
-                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-all"
-                            style={isActive
-                              ? { background: 'rgba(88,166,255,.1)', color: '#58a6ff', border: '1px solid rgba(88,166,255,.25)' }
-                              : { background: G.elevated, color: G.textMut, border: `1px solid ${G.border}` }
-                            }
-                            onMouseEnter={e => {
-                              if (!isActive) (e.currentTarget.style.borderColor = G.borderHi)
-                            }}
-                            onMouseLeave={e => {
-                              if (!isActive) (e.currentTarget.style.borderColor = G.border)
-                            }}
-                          >
-                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <polyline points="4 17 10 11 4 5" />
-                              <line x1="12" y1="19" x2="20" y2="19" />
-                            </svg>
-                            {isActive ? 'Hide' : 'Logs'}
-                          </button>
-                        )}
-
-                        <button
-                          onClick={() => handleDelete(runner.id)}
-                          className="text-xs px-2.5 py-1.5 rounded-md transition-all"
-                          style={isDeleting
-                            ? { background: 'rgba(248,81,73,.15)', color: '#f85149', border: '1px solid rgba(248,81,73,.3)' }
-                            : { background: G.elevated, color: G.textMut, border: `1px solid ${G.border}` }
-                          }
-                          onMouseEnter={e => {
-                            if (!isDeleting) e.currentTarget.style.color = '#f85149'
-                          }}
-                          onMouseLeave={e => {
-                            if (!isDeleting) e.currentTarget.style.color = G.textMut
-                          }}
-                        >
-                          {isDeleting ? 'Confirm?' : 'Remove'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Logs panel */}
-                  {isActive && (
-                    <div style={{ borderTop: `1px solid ${G.border}` }}>
-                      {/* Terminal titlebar */}
-                      <div
-                        className="px-4 py-2.5 flex items-center justify-between"
-                        style={{ background: G.bg }}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1.5">
-                            <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'rgba(248,81,73,.5)' }} />
-                            <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'rgba(227,179,65,.5)' }} />
-                            <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'rgba(63,185,80,.5)' }} />
-                          </div>
-                          <span className="text-xs font-mono" style={{ color: G.textMut }}>{runner.name}</span>
-                        </div>
-                        <button
-                          onClick={closeLogs}
-                          className="transition-colors"
-                          style={{ color: G.textMut }}
-                          onMouseEnter={e => { (e.currentTarget.style.color = G.textSec) }}
-                          onMouseLeave={e => { (e.currentTarget.style.color = G.textMut) }}
-                        >
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                          </svg>
-                        </button>
-                      </div>
-
-                      {/* Log output */}
-                      <div
-                        className="h-60 overflow-y-auto p-4 font-mono text-xs leading-5"
-                        style={{ background: '#010409', color: G.textSec }}
-                      >
-                        {logs.length === 0 ? (
-                          <span className="flex items-center gap-2" style={{ color: G.textMut }}>
-                            <span className="inline-block w-1.5 h-3.5 rounded-sm animate-pulse" style={{ background: G.textMut }} />
-                            Waiting for output…
-                          </span>
-                        ) : (
-                          logs.map((line, i) => (
-                            <div
-                              key={i}
-                              className="flex gap-3 group -mx-2 px-2 rounded hover:bg-white/[0.025]"
-                            >
-                              <span
-                                className="select-none w-7 text-right flex-shrink-0 transition-colors"
-                                style={{ color: G.textMut }}
+                          ) : (
+                            runner.status !== 'pending' && runner.status !== 'registering' && (
+                              <button
+                                onClick={() => handleStart(runner.id)}
+                                disabled={actionLoading === runner.id}
+                                className="inline-flex items-center gap-2 rounded-2xl border border-[#60a126]/30 bg-[#609926]/10 px-4 py-2 text-sm font-medium text-[#6aaa28] transition hover:bg-[#609926]/15 disabled:cursor-not-allowed disabled:opacity-40"
                               >
-                                {i + 1}
-                              </span>
-                              <span className="whitespace-pre-wrap break-all flex-1">{line}</span>
-                            </div>
-                          ))
-                        )}
-                        <div ref={logsEndRef} />
+                                <span className="h-3.5 w-3.5 rounded-full bg-[#6aaa28]" />
+                                Start
+                              </button>
+                            )
+                          )}
+                          {runner.running && (
+                            <button
+                              onClick={() => (isActive ? closeLogs() : openLogs(runner.id))}
+                              className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium transition ${isActive ? 'border border-[#58a6ff]/35 bg-[#58a6ff]/10 text-[#68a5ff]' : 'border border-white/10 bg-[#10151d] text-[#c9d1d9] hover:border-white/20'}`}
+                            >
+                              <span className="h-3.5 w-3.5 rounded-full bg-[#58a6ff]" />
+                              {isActive ? 'Hide Logs' : 'View Logs'}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDelete(runner.id)}
+                            className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium transition ${isDeleting ? 'border border-[#f85149]/35 bg-[#f85149]/10 text-[#f85149]' : 'border border-white/10 bg-[#10151d] text-[#c9d1d9] hover:border-[#f85149]/40 hover:text-[#f85149]'}`}
+                          >
+                            {isDeleting ? 'Confirm remove' : 'Remove'}
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
 
+                    {isActive && (
+                      <div className="border-t border-white/10">
+                        <div className="flex items-center justify-between gap-3 bg-[#070a0f] px-5 py-3 text-sm text-[#8b949e]">
+                          <div className="flex items-center gap-3">
+                            <span className="flex h-2.5 w-2.5 rounded-full bg-[#f85149]/70" />
+                            <span className="flex h-2.5 w-2.5 rounded-full bg-[#e3b341]/70" />
+                            <span className="flex h-2.5 w-2.5 rounded-full bg-[#3fb950]/70" />
+                            <span className="font-mono">{runner.name} logs</span>
+                          </div>
+                          <button onClick={closeLogs} className="text-xs uppercase tracking-[0.2em] text-[#8b949e] transition hover:text-white">
+                            CLOSE
+                          </button>
+                        </div>
+                        <div className="h-60 overflow-y-auto bg-[#02050b] p-4 font-mono text-xs leading-5 text-[#c9d1d9]">
+                          {logs.length === 0 ? (
+                            <div className="flex items-center gap-2 text-[#8b949e]">
+                              <span className="inline-block h-3 w-1.5 rounded-full animate-pulse bg-[#6e7681]" />
+                              Waiting for output…
+                            </div>
+                          ) : (
+                            logs.map((line, idx) => (
+                              <div key={idx} className="flex gap-3 rounded-xl px-3 py-1 transition hover:bg-white/5">
+                                <span className="w-8 text-right text-[#8b949e]">{idx + 1}</span>
+                                <span className="whitespace-pre-wrap break-all">{line}</span>
+                              </div>
+                            ))
+                          )}
+                          <div ref={logsEndRef} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </main>
       </div>
 
       {deleteConfirm && (
-        <div className="fixed inset-0" onClick={() => setDeleteConfirm(null)} />
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm" onClick={() => setDeleteConfirm(null)}>
+          <div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <p className="text-sm font-semibold text-white">Confirm runner removal</p>
+            <p className="mt-3 text-sm leading-6 text-[#b7c5d4]">
+              This action will remove the runner from the dashboard and stop live log streaming. Continue only if you want to permanently remove it.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirm(null)}
+                className="rounded-2xl border border-white/10 bg-[#10151d] px-4 py-3 text-sm font-medium text-[#c9d1d9] transition hover:border-white/20"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
+                className="rounded-2xl bg-[#f85149] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#ff6c6c]"
+              >
+                Remove runner
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
