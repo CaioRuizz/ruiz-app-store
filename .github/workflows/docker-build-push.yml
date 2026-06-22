@@ -1,0 +1,80 @@
+name: Build and push Docker images
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+env:
+  IMAGE_NAMESPACE: ${{ secrets.DOCKERHUB_USERNAME }}
+
+jobs:
+  build-and-push:
+    name: Build and push images
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - path: ruiz-claude-server/backend
+            image: ruiz-claude-server-backend
+          - path: ruiz-claude-server/frontend
+            image: ruiz-claude-server-frontend
+          - path: ruiz-claude-server/nginx
+            image: ruiz-claude-server-nginx
+          - path: ruiz-gitea-runner/backend
+            image: ruiz-gitea-runner-backend
+          - path: ruiz-gitea-runner/frontend
+            image: ruiz-gitea-runner-frontend
+          - path: ruiz-gitea-runner/nginx
+            image: ruiz-gitea-runner-nginx
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Read app version from umbrel-app.yml
+        id: get-version
+        run: |
+          set -euo pipefail
+          APP_DIR=$(dirname "${{ matrix.path }}")
+          FILE="$APP_DIR/umbrel-app.yml"
+          if [ ! -f "$FILE" ]; then
+            echo "version=latest" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Extract the version value (handles quotes)
+          VERSION=$(grep -E '^[[:space:]]*version:' "$FILE" | sed -E 's/^[[:space:]]*version:[[:space:]]*"?([^" ]+)"?/\1/')
+          if [ -z "$VERSION" ]; then
+            echo "version=latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push image
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ matrix.path }}
+          file: ${{ matrix.path }}/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAMESPACE }}/${{ matrix.image }}:latest
+            ${{ env.IMAGE_NAMESPACE }}/${{ matrix.image }}:${{ steps.get-version.outputs.version }}
+          cache-from: type=registry,ref=${{ env.IMAGE_NAMESPACE }}/${{ matrix.image }}:cache
+          cache-to: type=inline

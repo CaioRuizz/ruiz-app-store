@@ -7,14 +7,14 @@ networks:
 services:
   app_proxy:
     environment:
-      APP_HOST: ruiz-claude-server_nginx_1
+      APP_HOST: ruiz-gitea-runner_nginx_1
       APP_PORT: 80
     networks:
       - umbrel_main_network
     restart: on-failure
 
   nginx:
-    image: caioruizz/claude-server-nginx:1.2.2
+    image: caioruizz/gitea-runner-nginx:1.0.0
     depends_on:
       - backend
       - frontend
@@ -23,22 +23,20 @@ services:
     restart: on-failure
 
   backend:
-    image: caioruizz/claude-server-backend:1.2.2
+    image: caioruizz/gitea-runner-backend:1.0.0
     environment:
       - NODE_ENV=production
       - PORT=3001
       - DATA_DIR=/data
-      - WORKSPACES_DIR=/workspaces
     volumes:
       - "${APP_DATA_DIR:-./umbrel-data}/data:/data"
-      - "${APP_DATA_DIR:-./umbrel-data}/workspaces:/workspaces"
-      - "${APP_DATA_DIR:-./umbrel-data}/claude-config:/root/.claude"
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - umbrel_main_network
     restart: on-failure
 
   frontend:
-    image: caioruizz/claude-server-frontend:1.2.2
+    image: caioruizz/gitea-runner-frontend:1.0.0
     environment:
       - NODE_ENV=production
     networks:

@@ -1,0 +1,29 @@
+manifestVersion: 1
+id: ruiz-gitea-runner
+name: Gitea Runner
+tagline: Self-hosted CI/CD runner for Gitea Actions
+icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-gitea-runner/icon.svg
+category: developer-tools
+version: "1.0.0"
+description: >-
+  Connect your Umbrel to Gitea Actions as a self-hosted runner. Register
+  one or more Gitea instances through the web UI — no config files needed.
+
+  On first launch, open the app and add your first Gitea instance: paste
+  the Gitea URL and the registration token from your Gitea repository or
+  organization settings. The runner registers itself and starts immediately.
+
+  You can manage multiple Gitea instances from the same dashboard — add,
+  start, stop, or remove runners at any time, and watch live logs for each.
+
+developer: "Caio Ruiz"
+website: "https://github.com"
+dependencies: []
+repo: "https://github.com/CaioRuizz/ruiz-app-store"
+support: "https://github.com/CaioRuizz/ruiz-app-store/issues"
+port: 4830
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: "Initial release"
