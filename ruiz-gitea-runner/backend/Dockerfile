@@ -17,9 +17,20 @@ WORKDIR /app
 # act_runner needs git, bash, and Docker CLI for running jobs
 RUN apk add --no-cache git bash curl docker-cli
 
-# Copy act_runner binary
-COPY --from=act /act_runner /usr/local/bin/act_runner
-RUN chmod +x /usr/local/bin/act_runner
+# Copy act_runner binary (try multiple locations from the act image root)
+COPY --from=act / /act_from_act
+RUN set -euo pipefail \
+  && if [ -f /act_from_act/act_runner ]; then \
+       cp /act_from_act/act_runner /usr/local/bin/act_runner; \
+     elif [ -f /act_from_act/usr/local/bin/act_runner ]; then \
+       cp /act_from_act/usr/local/bin/act_runner /usr/local/bin/act_runner; \
+     elif [ -f /act_from_act/usr/bin/act_runner ]; then \
+       cp /act_from_act/usr/bin/act_runner /usr/local/bin/act_runner; \
+     else \
+       echo "act_runner binary not found in gitea/act_runner image" >&2; exit 1; \
+     fi \
+  && chmod +x /usr/local/bin/act_runner \
+  && rm -rf /act_from_act
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
