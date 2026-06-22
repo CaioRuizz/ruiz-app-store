@@ -17,7 +17,7 @@ services:
     restart: on-failure
 
   nginx:
-    image: caioruizz/ruiz-claude-server-nginx:1.2.6
+    image: caioruizz/ruiz-claude-server-nginx:1.2.7
     depends_on:
       - backend
       - frontend
@@ -26,7 +26,7 @@ services:
     restart: on-failure
 
   backend:
-    image: caioruizz/ruiz-claude-server-backend:1.2.6
+    image: caioruizz/ruiz-claude-server-backend:1.2.7
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -41,7 +41,7 @@ services:
     restart: on-failure
 
   frontend:
-    image: caioruizz/ruiz-claude-server-frontend:1.2.6
+    image: caioruizz/ruiz-claude-server-frontend:1.2.7
     environment:
       - NODE_ENV=production
     networks:
