@@ -37,6 +37,7 @@ export const api = {
     get: (id: string) => req<Session>(`/api/sessions/${id}`),
     create: (name: string, workspace: string) =>
       req<{ id: string }>('/api/sessions', { method: 'POST', body: JSON.stringify({ name, workspace }) }),
+    start: (id: string) => req(`/api/sessions/${id}/start`, { method: 'POST' }),
     delete: (id: string) => req(`/api/sessions/${id}`, { method: 'DELETE' }),
   },
   files: {

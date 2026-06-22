@@ -17,7 +17,11 @@ services:
     restart: on-failure
 
   nginx:
-    image: caioruizz/ruiz-claude-server-nginx:1.2.4
+<<<<<<< HEAD
+    image: caioruizz/ruiz-claude-server-nginx:1.2.5
+=======
+    image: caioruizz/ruiz-claude-server-nginx:1.2.5
+>>>>>>> b4d7db0 (feat(claude-server): add restart for stopped sessions, bump to v1.2.5)
     depends_on:
       - backend
       - frontend
@@ -26,7 +30,11 @@ services:
     restart: on-failure
 
   backend:
-    image: caioruizz/ruiz-claude-server-backend:1.2.4
+<<<<<<< HEAD
+    image: caioruizz/ruiz-claude-server-backend:1.2.5
+=======
+    image: caioruizz/ruiz-claude-server-backend:1.2.5
+>>>>>>> b4d7db0 (feat(claude-server): add restart for stopped sessions, bump to v1.2.5)
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -41,7 +49,11 @@ services:
     restart: on-failure
 
   frontend:
-    image: caioruizz/ruiz-claude-server-frontend:1.2.4
+<<<<<<< HEAD
+    image: caioruizz/ruiz-claude-server-frontend:1.2.5
+=======
+    image: caioruizz/ruiz-claude-server-frontend:1.2.5
+>>>>>>> b4d7db0 (feat(claude-server): add restart for stopped sessions, bump to v1.2.5)
     environment:
       - NODE_ENV=production
     networks:

@@ -11,6 +11,7 @@ export default function HomePage() {
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState('')
   const [creating, setCreating] = useState(false)
+  const [startingId, setStartingId] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [listing, setListing] = useState<FileListing | null>(null)
   const [selectedDir, setSelectedDir] = useState('/workspaces')
@@ -67,6 +68,17 @@ export default function HomePage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create session')
       setCreating(false)
+    }
+  }
+
+  async function startSession(id: string) {
+    setStartingId(id)
+    try {
+      await api.sessions.start(id)
+      router.push(`/session/${id}`)
+    } catch (err) {
+      console.error(err)
+      setStartingId(null)
     }
   }
 
@@ -140,6 +152,16 @@ export default function HomePage() {
                     Active {new Date(session.last_active).toLocaleString()}
                   </p>
                 </button>
+
+                {session.status === 'stopped' && (
+                  <button
+                    onClick={() => startSession(session.id)}
+                    disabled={startingId === session.id}
+                    className="text-gray-500 hover:text-green-400 disabled:opacity-50 transition-colors text-xs px-2.5 py-1 border border-gray-700 hover:border-green-800 rounded-lg"
+                  >
+                    {startingId === session.id ? '...' : 'Start'}
+                  </button>
+                )}
 
                 <button
                   onClick={() => deleteSession(session.id)}

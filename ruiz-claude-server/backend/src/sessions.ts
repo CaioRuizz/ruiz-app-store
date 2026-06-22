@@ -79,6 +79,44 @@ export class SessionManager {
     db.prepare('UPDATE sessions SET status = ? WHERE id = ?').run('stopped', id)
   }
 
+  restart(id: string, apiKey?: string): void {
+    const row = db.prepare('SELECT * FROM sessions WHERE id = ?').get(id) as { name: string; workspace: string } | undefined
+    if (!row) throw new Error('Session not found')
+
+    const ptyProcess = pty.spawn('claude', [], {
+      name: 'xterm-256color',
+      cols: 220,
+      rows: 50,
+      cwd: row.workspace,
+      env: {
+        ...process.env,
+        ...(apiKey ? { ANTHROPIC_API_KEY: apiKey } : {}),
+        TERM: 'xterm-256color',
+        COLORTERM: 'truecolor',
+        HOME: process.env.HOME || '/root',
+      } as Record<string, string>,
+    })
+
+    const emitter = new EventEmitter()
+    const session: ActiveSession = { id, name: row.name, workspace: row.workspace, pty: ptyProcess, buffer: '', emitter }
+
+    ptyProcess.onData((data) => {
+      session.buffer += data
+      if (session.buffer.length > BUFFER_MAX) {
+        session.buffer = session.buffer.slice(-BUFFER_MAX)
+      }
+      emitter.emit('data', data)
+    })
+
+    ptyProcess.onExit(() => {
+      db.prepare('UPDATE sessions SET status = ? WHERE id = ?').run('stopped', id)
+      this.sessions.delete(id)
+    })
+
+    this.sessions.set(id, session)
+    db.prepare('UPDATE sessions SET status = ?, last_active = ? WHERE id = ?').run('active', Date.now(), id)
+  }
+
   touchActive(id: string): void {
     db.prepare('UPDATE sessions SET last_active = ? WHERE id = ?').run(Date.now(), id)
   }
