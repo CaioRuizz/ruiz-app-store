@@ -1,4 +1,4 @@
-FROM node:24-bookworm-slim
+FROM node:20-bookworm-slim
 
 # Build deps for node-pty native module
 RUN apt-get update && apt-get install -y \

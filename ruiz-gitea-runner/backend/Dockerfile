@@ -2,16 +2,18 @@
 FROM gitea/act_runner:latest AS act
 
 # Build stage
-FROM node:24-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN apk add --no-cache python3 make g++ \
+  && npm ci
+
 COPY tsconfig.json ./
 COPY src ./src
 RUN npm run build
 
 # Runtime
-FROM node:24-alpine
+FROM node:20-alpine
 WORKDIR /app
 
 # act_runner needs git, bash, and Docker CLI for running jobs
