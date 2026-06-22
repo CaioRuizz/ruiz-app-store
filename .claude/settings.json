@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "git -C \"$CLAUDE_PROJECT_DIR\" pull --rebase 2>&1 || true",
+            "statusMessage": "Pulling latest changes..."
+          }
+        ]
+      }
+    ]
+  }
+}
