@@ -14,24 +14,34 @@ env:
   IMAGE_NAMESPACE: ${{ secrets.DOCKERHUB_USERNAME }}
 
 jobs:
+  discover:
+    name: Discover apps
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.find-apps.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find app directories with Dockerfiles
+        id: find-apps
+        run: |
+          set -euo pipefail
+          MATRIX=$(find . -path './ruiz-*/*/Dockerfile' | sed 's|^\./||; s|/Dockerfile$||' | sort | jq -R -s -c '
+            split("\n") | map(select(length > 0)) | map({
+              path: .,
+              image: gsub("/"; "-")
+            })
+          ')
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
   build-and-push:
     name: Build and push images
     runs-on: ubuntu-latest
+    needs: discover
     strategy:
       matrix:
-        include:
-          - path: ruiz-claude-server/backend
-            image: ruiz-claude-server-backend
-          - path: ruiz-claude-server/frontend
-            image: ruiz-claude-server-frontend
-          - path: ruiz-claude-server/nginx
-            image: ruiz-claude-server-nginx
-          - path: ruiz-gitea-runner/backend
-            image: ruiz-gitea-runner-backend
-          - path: ruiz-gitea-runner/frontend
-            image: ruiz-gitea-runner-frontend
-          - path: ruiz-gitea-runner/nginx
-            image: ruiz-gitea-runner-nginx
+        include: ${{ fromJson(needs.discover.outputs.matrix) }}
 
     steps:
       - name: Checkout repository
@@ -59,7 +69,6 @@ jobs:
             echo "version=latest" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          # Extract the version value (handles quotes)
           VERSION=$(grep -E '^[[:space:]]*version:' "$FILE" | sed -E 's/^[[:space:]]*version:[[:space:]]*"?([^" ]+)"?/\1/')
           if [ -z "$VERSION" ]; then
             echo "version=latest" >> "$GITHUB_OUTPUT"
@@ -95,7 +104,8 @@ jobs:
       - name: Update docker-compose image tags
         run: |
           set -euo pipefail
-          for APP_DIR in ruiz-claude-server ruiz-gitea-runner; do
+          for APP_DIR in ruiz-*/; do
+            APP_DIR="${APP_DIR%/}"
             VERSION=$(grep -E '^[[:space:]]*version:' "$APP_DIR/umbrel-app.yml" | sed -E 's/^[[:space:]]*version:[[:space:]]*"?([^" ]+)"?/\1/')
             sed -i -E "s|(image: [^:]+):([0-9]+\.[0-9]+\.[0-9]+)|\1:$VERSION|g" "$APP_DIR/docker-compose.yml"
             echo "Updated $APP_DIR/docker-compose.yml to $VERSION"
@@ -105,7 +115,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ruiz-claude-server/docker-compose.yml ruiz-gitea-runner/docker-compose.yml
+          git add ruiz-*/docker-compose.yml
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
