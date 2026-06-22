@@ -3,8 +3,22 @@
 @tailwind utilities;
 
 @layer base {
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  :root {
+    --gitea-green:       #609926;
+    --gitea-green-hover: #6aaa28;
+    --gitea-green-muted: rgba(96,153,38,.15);
+    --bg-base:           #0d1117;
+    --bg-surface:        #161b22;
+    --bg-elevated:       #21262d;
+    --border:            #30363d;
+    --border-muted:      #21262d;
+    --text-primary:      #e6edf3;
+    --text-secondary:    #8b949e;
+    --text-muted:        #6e7681;
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+  ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #484f58; }
 }

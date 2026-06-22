@@ -8,51 +8,101 @@ const BASE = process.env.NEXT_PUBLIC_API_URL ?? ''
 
 type Status = Runner['status']
 
-const STATUS_THEME: Record<Status, { dot: string; badge: string; border: string }> = {
-  running:     { dot: 'bg-emerald-400',              badge: 'text-emerald-300 bg-emerald-950/70 ring-1 ring-emerald-700/50', border: 'border-l-emerald-500' },
-  registered:  { dot: 'bg-sky-400',                  badge: 'text-sky-300 bg-sky-950/70 ring-1 ring-sky-700/50',             border: 'border-l-sky-500' },
-  registering: { dot: 'bg-amber-400 animate-pulse',  badge: 'text-amber-300 bg-amber-950/70 ring-1 ring-amber-700/50',       border: 'border-l-amber-500' },
-  pending:     { dot: 'bg-gray-600',                 badge: 'text-gray-400 bg-gray-800/60 ring-1 ring-gray-700/40',           border: 'border-l-gray-700' },
-  stopped:     { dot: 'bg-gray-600',                 badge: 'text-gray-400 bg-gray-800/60 ring-1 ring-gray-700/40',           border: 'border-l-gray-700' },
-  error:       { dot: 'bg-red-500',                  badge: 'text-red-300 bg-red-950/70 ring-1 ring-red-700/50',              border: 'border-l-red-500' },
+/* ─── Gitea color palette ─── */
+const G = {
+  bg:       '#0d1117',
+  surface:  '#161b22',
+  elevated: '#21262d',
+  border:   '#30363d',
+  borderHi: '#484f58',
+  text:     '#e6edf3',
+  textSec:  '#8b949e',
+  textMut:  '#6e7681',
+  green:    '#609926',
+  greenHi:  '#6aaa28',
 }
 
-function StatusIcon({ status }: { status: Status }) {
-  if (status === 'running') return (
-    <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M8 5v14l11-7z" />
-    </svg>
-  )
-  if (status === 'registering') return (
-    <svg className="w-2.5 h-2.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-    </svg>
-  )
-  if (status === 'error') return (
-    <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-    </svg>
-  )
-  return null
+const STATUS_THEME: Record<Status, {
+  dot: string
+  badgeBg: string; badgeText: string; badgeBorder: string
+  borderLeft: string
+}> = {
+  running:     { dot: '#3fb950', badgeBg: 'rgba(63,185,80,.1)',   badgeText: '#3fb950', badgeBorder: 'rgba(63,185,80,.3)',   borderLeft: '#238636' },
+  registered:  { dot: '#58a6ff', badgeBg: 'rgba(88,166,255,.1)',  badgeText: '#58a6ff', badgeBorder: 'rgba(88,166,255,.3)',  borderLeft: '#1f6feb' },
+  registering: { dot: '#e3b341', badgeBg: 'rgba(227,179,65,.1)',  badgeText: '#e3b341', badgeBorder: 'rgba(227,179,65,.3)',  borderLeft: '#9e6a03' },
+  pending:     { dot: '#6e7681', badgeBg: 'rgba(110,118,129,.08)', badgeText: '#6e7681', badgeBorder: 'rgba(110,118,129,.2)', borderLeft: '#30363d' },
+  stopped:     { dot: '#6e7681', badgeBg: 'rgba(110,118,129,.08)', badgeText: '#6e7681', badgeBorder: 'rgba(110,118,129,.2)', borderLeft: '#30363d' },
+  error:       { dot: '#f85149', badgeBg: 'rgba(248,81,73,.1)',   badgeText: '#f85149', badgeBorder: 'rgba(248,81,73,.3)',   borderLeft: '#da3633' },
 }
 
-function StatCard({ label, value, accent }: { label: string; value: number; accent: string }) {
+/* ─── Gitea logo — the app's own icon ─── */
+function GiteaLogo({ size = 20 }: { size?: number }) {
   return (
-    <div className="bg-gray-900/60 border border-gray-800/50 rounded-xl p-4">
-      <div className={`text-2xl font-bold tabular-nums ${accent}`}>{value}</div>
-      <div className="text-xs text-gray-500 uppercase tracking-widest mt-0.5">{label}</div>
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="22" fill="#609926" />
+      <circle cx="50" cy="46" r="26" fill="white" opacity="0.95" />
+      <polygon points="42,35 42,57 63,46" fill="#609926" />
+      <circle cx="28" cy="76" r="4" fill="white" opacity="0.8" />
+      <circle cx="50" cy="82" r="4" fill="white" opacity="0.8" />
+      <circle cx="72" cy="76" r="4" fill="white" opacity="0.8" />
+      <line x1="32" y1="76" x2="46" y2="82" stroke="white" strokeWidth="2" opacity="0.6" />
+      <line x1="54" y1="82" x2="68" y2="76" stroke="white" strokeWidth="2" opacity="0.6" />
+    </svg>
+  )
+}
+
+function StatusDot({ status }: { status: Status }) {
+  const t = STATUS_THEME[status] ?? STATUS_THEME.stopped
+  return (
+    <span
+      className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+      style={{
+        background: t.dot,
+        boxShadow: status === 'running' ? `0 0 6px ${t.dot}` : undefined,
+        animation: status === 'registering' ? 'pulse 1.5s ease-in-out infinite' : undefined,
+      }}
+    />
+  )
+}
+
+function StatusBadge({ status }: { status: Status }) {
+  const t = STATUS_THEME[status] ?? STATUS_THEME.stopped
+  return (
+    <span
+      className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium"
+      style={{ background: t.badgeBg, color: t.badgeText, border: `1px solid ${t.badgeBorder}` }}
+    >
+      {status === 'running' && (
+        <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      )}
+      {status === 'registering' && (
+        <svg className="w-2.5 h-2.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+      )}
+      {status === 'error' && (
+        <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      )}
+      {status}
+    </span>
+  )
+}
+
+function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div
+      className="rounded-lg p-4"
+      style={{ background: G.surface, border: `1px solid ${G.border}` }}
+    >
+      <div className="text-2xl font-bold tabular-nums" style={{ color }}>{value}</div>
+      <div className="text-xs uppercase tracking-widest mt-0.5" style={{ color: G.textMut }}>{label}</div>
     </div>
-  )
-}
-
-function RefreshIcon() {
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-      <path d="M21 3v5h-5" />
-      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-      <path d="M3 21v-5h5" />
-    </svg>
   )
 }
 
@@ -71,11 +121,8 @@ export default function DashboardPage() {
     try {
       const data = await api.runners.list()
       setRunners(data)
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false)
-    }
+    } catch { /* ignore */ }
+    finally { setLoading(false) }
   }, [])
 
   useEffect(() => {
@@ -130,8 +177,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="flex items-center gap-3 text-gray-500">
+      <div className="flex items-center justify-center h-screen" style={{ background: G.bg }}>
+        <div className="flex items-center gap-3" style={{ color: G.textMut }}>
           <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 12a9 9 0 1 1-6.219-8.56" />
           </svg>
@@ -142,124 +189,164 @@ export default function DashboardPage() {
   }
 
   const runningCount = runners.filter(r => r.running).length
-  const errorCount = runners.filter(r => r.status === 'error').length
+  const errorCount   = runners.filter(r => r.status === 'error').length
   const stoppedCount = runners.length - runningCount - errorCount
 
   return (
-    <div className="min-h-screen">
-      <div className="h-px bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-sky-500/0" />
+    <div className="min-h-screen" style={{ background: G.bg }}>
 
-      <div className="max-w-3xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-lg font-semibold text-white tracking-tight">Gitea Runner</h1>
-            <p className="text-xs text-gray-600 mt-0.5">Self-hosted Actions runner manager</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={loadRunners}
-              title="Refresh"
-              className="p-2 text-gray-600 hover:text-gray-300 hover:bg-gray-800/60 rounded-lg transition-all"
-            >
-              <RefreshIcon />
-            </button>
-            <button
-              onClick={() => router.push('/runners/new')}
-              className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white px-3.5 py-2 rounded-lg text-sm font-semibold transition-all shadow-lg shadow-emerald-900/40"
-            >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              Add Runner
-            </button>
-          </div>
+      {/* Top accent line */}
+      <div className="h-px" style={{ background: `linear-gradient(to right, transparent, ${G.green}, transparent)` }} />
+
+      {/* App header bar */}
+      <header
+        className="sticky top-0 z-10 px-6 py-3 flex items-center justify-between"
+        style={{ background: G.surface, borderBottom: `1px solid ${G.border}` }}
+      >
+        <div className="flex items-center gap-2.5">
+          <GiteaLogo size={22} />
+          <span className="text-sm font-semibold" style={{ color: G.text }}>Gitea Runner</span>
         </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={loadRunners}
+            title="Refresh"
+            className="p-1.5 rounded-md transition-colors"
+            style={{ color: G.textMut }}
+            onMouseEnter={e => { (e.currentTarget.style.background = G.elevated); (e.currentTarget.style.color = G.text) }}
+            onMouseLeave={e => { (e.currentTarget.style.background = 'transparent'); (e.currentTarget.style.color = G.textMut) }}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+              <path d="M21 3v5h-5" />
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+              <path d="M3 21v-5h5" />
+            </svg>
+          </button>
+
+          <button
+            onClick={() => router.push('/runners/new')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold text-white transition-all"
+            style={{ background: G.green }}
+            onMouseEnter={e => { (e.currentTarget.style.background = G.greenHi) }}
+            onMouseLeave={e => { (e.currentTarget.style.background = G.green) }}
+          >
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add Runner
+          </button>
+        </div>
+      </header>
+
+      <div className="max-w-3xl mx-auto px-6 py-7">
 
         {/* Stats */}
         {runners.length > 0 && (
           <div className="grid grid-cols-3 gap-3 mb-6">
-            <StatCard label="Total" value={runners.length} accent="text-white" />
-            <StatCard label="Running" value={runningCount} accent="text-emerald-400" />
+            <StatCard label="Total"   value={runners.length} color={G.text} />
+            <StatCard label="Running" value={runningCount}   color="#3fb950" />
             <StatCard
               label={errorCount > 0 ? 'Errors' : 'Stopped'}
               value={errorCount > 0 ? errorCount : stoppedCount}
-              accent={errorCount > 0 ? 'text-red-400' : 'text-gray-500'}
+              color={errorCount > 0 ? '#f85149' : G.textMut}
             />
           </div>
         )}
 
         {/* Empty state */}
         {runners.length === 0 ? (
-          <div className="text-center py-28">
-            <div className="w-12 h-12 bg-gray-900 border border-gray-800 rounded-xl flex items-center justify-center mx-auto mb-5">
-              <svg className="w-6 h-6 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-              </svg>
+          <div className="text-center py-24">
+            <div
+              className="inline-flex items-center justify-center w-10 h-10 rounded-xl mb-5"
+              style={{ background: G.surface, border: `1px solid ${G.border}` }}
+            >
+              <GiteaLogo size={20} />
             </div>
-            <p className="font-medium text-gray-400 mb-1">No runners yet</p>
-            <p className="text-sm text-gray-600 mb-6">Add your first runner to execute Gitea Actions</p>
+            <p className="font-medium mb-1" style={{ color: G.textSec }}>No runners yet</p>
+            <p className="text-sm mb-6" style={{ color: G.textMut }}>Add your first runner to execute Gitea Actions</p>
             <button
               onClick={() => router.push('/runners/new')}
-              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold text-white transition-all"
+              style={{ background: G.green }}
+              onMouseEnter={e => { (e.currentTarget.style.background = G.greenHi) }}
+              onMouseLeave={e => { (e.currentTarget.style.background = G.green) }}
             >
               Add your first runner
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {runners.map(runner => {
-              const theme = STATUS_THEME[runner.status] ?? STATUS_THEME.stopped
-              const isActive = activeLogs === runner.id
+              const theme   = STATUS_THEME[runner.status] ?? STATUS_THEME.stopped
+              const isActive   = activeLogs === runner.id
               const isDeleting = deleteConfirm === runner.id
 
               return (
                 <div
                   key={runner.id}
-                  className={`bg-gray-900/70 border border-gray-800/50 border-l-4 ${theme.border} rounded-xl overflow-hidden transition-all`}
+                  className="rounded-xl overflow-hidden transition-all"
+                  style={{
+                    background: G.surface,
+                    border: `1px solid ${G.border}`,
+                    borderLeft: `3px solid ${theme.borderLeft}`,
+                  }}
                 >
                   <div className="px-4 py-3.5">
                     <div className="flex items-start justify-between gap-4">
-                      {/* Left: info */}
+
+                      {/* Left: runner info */}
                       <div className="flex items-start gap-3 min-w-0">
-                        <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${theme.dot}`} />
+                        <div className="mt-1.5">
+                          <StatusDot status={runner.status} />
+                        </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-semibold text-white text-sm">{runner.name}</span>
-                            <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium ${theme.badge}`}>
-                              <StatusIcon status={runner.status} />
-                              {runner.status}
-                            </span>
+                            <span className="font-semibold text-sm" style={{ color: G.text }}>{runner.name}</span>
+                            <StatusBadge status={runner.status} />
                           </div>
-                          <p className="text-gray-600 text-xs font-mono mt-1 truncate">{runner.gitea_url}</p>
+                          <p className="text-xs font-mono mt-1 truncate" style={{ color: G.textMut }}>{runner.gitea_url}</p>
                           {runner.labels && (
                             <div className="flex items-center gap-1 mt-1.5 flex-wrap">
                               {runner.labels.split(',').slice(0, 3).map((l, i) => (
-                                <span key={i} className="text-xs bg-gray-800/80 text-gray-500 px-1.5 py-0.5 rounded-md font-mono border border-gray-700/40">
+                                <span
+                                  key={i}
+                                  className="text-xs px-1.5 py-0.5 rounded font-mono"
+                                  style={{ background: G.elevated, color: G.textMut, border: `1px solid ${G.border}` }}
+                                >
                                   {l.split(':')[0]}
                                 </span>
                               ))}
                               {runner.labels.split(',').length > 3 && (
-                                <span className="text-xs text-gray-700">+{runner.labels.split(',').length - 3}</span>
+                                <span className="text-xs" style={{ color: G.textMut }}>
+                                  +{runner.labels.split(',').length - 3}
+                                </span>
                               )}
                             </div>
                           )}
                           {runner.status === 'error' && runner.error && (
-                            <p className="text-red-400 text-xs mt-2 bg-red-950/30 border border-red-900/30 rounded-lg px-2.5 py-1.5">
+                            <p
+                              className="text-xs mt-2 px-2.5 py-1.5 rounded-lg"
+                              style={{ color: '#f85149', background: 'rgba(248,81,73,.08)', border: '1px solid rgba(248,81,73,.2)' }}
+                            >
                               {runner.error}
                             </p>
                           )}
                         </div>
                       </div>
 
-                      {/* Right: actions */}
+                      {/* Right: action buttons */}
                       <div className="flex items-center gap-1.5 flex-shrink-0">
                         {runner.running ? (
                           <button
                             onClick={() => handleStop(runner.id)}
                             disabled={actionLoading === runner.id}
-                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-800/80 hover:bg-gray-700 text-gray-300 rounded-lg transition-all disabled:opacity-40 border border-gray-700/40"
+                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-all disabled:opacity-40"
+                            style={{ background: G.elevated, color: G.textSec, border: `1px solid ${G.border}` }}
+                            onMouseEnter={e => { (e.currentTarget.style.borderColor = G.borderHi) }}
+                            onMouseLeave={e => { (e.currentTarget.style.borderColor = G.border) }}
                           >
                             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
                               <rect x="6" y="6" width="12" height="12" rx="1.5" />
@@ -271,7 +358,14 @@ export default function DashboardPage() {
                             <button
                               onClick={() => handleStart(runner.id)}
                               disabled={actionLoading === runner.id}
-                              className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-emerald-900/50 hover:bg-emerald-800/60 text-emerald-300 rounded-lg transition-all disabled:opacity-40 border border-emerald-800/40"
+                              className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-all disabled:opacity-40"
+                              style={{
+                                background: 'rgba(96,153,38,.15)',
+                                color: '#6aaa28',
+                                border: '1px solid rgba(96,153,38,.3)',
+                              }}
+                              onMouseEnter={e => { (e.currentTarget.style.background = 'rgba(96,153,38,.25)') }}
+                              onMouseLeave={e => { (e.currentTarget.style.background = 'rgba(96,153,38,.15)') }}
                             >
                               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M8 5v14l11-7z" />
@@ -284,11 +378,17 @@ export default function DashboardPage() {
                         {runner.running && (
                           <button
                             onClick={() => isActive ? closeLogs() : openLogs(runner.id)}
-                            className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all border ${
-                              isActive
-                                ? 'bg-sky-900/50 text-sky-300 border-sky-800/40'
-                                : 'bg-gray-800/80 hover:bg-gray-700 text-gray-400 border-gray-700/40'
-                            }`}
+                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-all"
+                            style={isActive
+                              ? { background: 'rgba(88,166,255,.1)', color: '#58a6ff', border: '1px solid rgba(88,166,255,.25)' }
+                              : { background: G.elevated, color: G.textMut, border: `1px solid ${G.border}` }
+                            }
+                            onMouseEnter={e => {
+                              if (!isActive) (e.currentTarget.style.borderColor = G.borderHi)
+                            }}
+                            onMouseLeave={e => {
+                              if (!isActive) (e.currentTarget.style.borderColor = G.border)
+                            }}
                           >
                             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <polyline points="4 17 10 11 4 5" />
@@ -300,11 +400,17 @@ export default function DashboardPage() {
 
                         <button
                           onClick={() => handleDelete(runner.id)}
-                          className={`text-xs px-2.5 py-1.5 rounded-lg transition-all border ${
-                            isDeleting
-                              ? 'bg-red-900/60 text-red-200 border-red-700/50 hover:bg-red-800/60'
-                              : 'bg-gray-800/60 hover:bg-gray-700/60 text-gray-600 hover:text-red-400 border-gray-700/40'
-                          }`}
+                          className="text-xs px-2.5 py-1.5 rounded-md transition-all"
+                          style={isDeleting
+                            ? { background: 'rgba(248,81,73,.15)', color: '#f85149', border: '1px solid rgba(248,81,73,.3)' }
+                            : { background: G.elevated, color: G.textMut, border: `1px solid ${G.border}` }
+                          }
+                          onMouseEnter={e => {
+                            if (!isDeleting) e.currentTarget.style.color = '#f85149'
+                          }}
+                          onMouseLeave={e => {
+                            if (!isDeleting) e.currentTarget.style.color = G.textMut
+                          }}
                         >
                           {isDeleting ? 'Confirm?' : 'Remove'}
                         </button>
@@ -312,35 +418,56 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Log panel */}
+                  {/* Logs panel */}
                   {isActive && (
-                    <div className="border-t border-gray-800/50">
-                      <div className="bg-gray-950/90 px-4 py-2.5 flex items-center justify-between">
+                    <div style={{ borderTop: `1px solid ${G.border}` }}>
+                      {/* Terminal titlebar */}
+                      <div
+                        className="px-4 py-2.5 flex items-center justify-between"
+                        style={{ background: G.bg }}
+                      >
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-1.5">
-                            <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+                            <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'rgba(248,81,73,.5)' }} />
+                            <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'rgba(227,179,65,.5)' }} />
+                            <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'rgba(63,185,80,.5)' }} />
                           </div>
-                          <span className="text-xs text-gray-600 font-mono">{runner.name}</span>
+                          <span className="text-xs font-mono" style={{ color: G.textMut }}>{runner.name}</span>
                         </div>
-                        <button onClick={closeLogs} className="text-gray-700 hover:text-gray-400 transition-colors">
+                        <button
+                          onClick={closeLogs}
+                          className="transition-colors"
+                          style={{ color: G.textMut }}
+                          onMouseEnter={e => { (e.currentTarget.style.color = G.textSec) }}
+                          onMouseLeave={e => { (e.currentTarget.style.color = G.textMut) }}
+                        >
                           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <line x1="18" y1="6" x2="6" y2="18" />
                             <line x1="6" y1="6" x2="18" y2="18" />
                           </svg>
                         </button>
                       </div>
-                      <div className="h-64 overflow-y-auto bg-gray-950/60 p-4 font-mono text-xs text-gray-400 leading-5">
+
+                      {/* Log output */}
+                      <div
+                        className="h-60 overflow-y-auto p-4 font-mono text-xs leading-5"
+                        style={{ background: '#010409', color: G.textSec }}
+                      >
                         {logs.length === 0 ? (
-                          <span className="text-gray-700 flex items-center gap-2">
-                            <span className="inline-block w-1.5 h-3.5 bg-gray-700 animate-pulse rounded-sm" />
+                          <span className="flex items-center gap-2" style={{ color: G.textMut }}>
+                            <span className="inline-block w-1.5 h-3.5 rounded-sm animate-pulse" style={{ background: G.textMut }} />
                             Waiting for output…
                           </span>
                         ) : (
                           logs.map((line, i) => (
-                            <div key={i} className="flex gap-3 group hover:bg-white/[0.02] -mx-2 px-2 rounded">
-                              <span className="text-gray-700 select-none w-7 text-right flex-shrink-0 group-hover:text-gray-600 transition-colors">
+                            <div
+                              key={i}
+                              className="flex gap-3 group -mx-2 px-2 rounded hover:bg-white/[0.025]"
+                            >
+                              <span
+                                className="select-none w-7 text-right flex-shrink-0 transition-colors"
+                                style={{ color: G.textMut }}
+                              >
                                 {i + 1}
                               </span>
                               <span className="whitespace-pre-wrap break-all flex-1">{line}</span>
@@ -357,10 +484,11 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {deleteConfirm && (
-          <div className="fixed inset-0" onClick={() => setDeleteConfirm(null)} />
-        )}
       </div>
+
+      {deleteConfirm && (
+        <div className="fixed inset-0" onClick={() => setDeleteConfirm(null)} />
+      )}
     </div>
   )
 }

@@ -6,6 +6,11 @@ import { api } from '@/lib/api'
 
 const DEFAULT_LABELS = 'ubuntu-latest:docker://ubuntu:22.04,ubuntu-22.04:docker://ubuntu:22.04,ubuntu-20.04:docker://ubuntu:20.04'
 
+const inputClass = 'w-full rounded-md px-3 py-2 text-sm text-[#e6edf3] placeholder-[#6e7681] outline-none transition-all'
+const inputStyle = { background: '#21262d', border: '1px solid #30363d' }
+const inputFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => { e.target.style.borderColor = '#609926' }
+const inputBlur  = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => { e.target.style.borderColor = '#30363d' }
+
 export default function NewRunnerPage() {
   const router = useRouter()
   const [giteaUrl, setGiteaUrl] = useState('')
@@ -41,12 +46,13 @@ export default function NewRunnerPage() {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen bg-[#0d1117] p-6">
       <div className="max-w-md mx-auto">
+
         {/* Back nav */}
         <button
           onClick={() => router.push('/')}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-300 transition-colors mb-8 group"
+          className="flex items-center gap-1.5 text-sm text-[#6e7681] hover:text-[#e6edf3] transition-colors mb-8 group"
         >
           <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15 18 9 12 15 6" />
@@ -55,16 +61,21 @@ export default function NewRunnerPage() {
         </button>
 
         <div className="mb-6">
-          <h1 className="text-lg font-semibold text-white">Add Runner</h1>
-          <p className="text-sm text-gray-600 mt-0.5">Register a new runner with your Gitea instance</p>
+          <h1 className="text-base font-semibold text-[#e6edf3]">Add Runner</h1>
+          <p className="text-sm text-[#8b949e] mt-0.5">Register a new runner with your Gitea instance</p>
         </div>
 
         {/* Card */}
-        <div className="bg-gray-900/80 border border-gray-800/60 rounded-2xl shadow-2xl overflow-hidden">
-          <div className="h-px bg-gradient-to-r from-emerald-500/0 via-emerald-500/60 to-emerald-500/0" />
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ background: '#161b22', border: '1px solid #30363d' }}
+        >
+          <div className="h-px" style={{ background: 'linear-gradient(to right, transparent, #609926, transparent)' }} />
+
+          <form onSubmit={handleSubmit} className="p-6 space-y-5">
+
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">
+              <label className="block text-xs font-medium text-[#8b949e] mb-1.5 uppercase tracking-wider">
                 Gitea Instance URL
               </label>
               <input
@@ -72,14 +83,17 @@ export default function NewRunnerPage() {
                 value={giteaUrl}
                 onChange={e => setGiteaUrl(e.target.value)}
                 placeholder="https://gitea.example.com"
-                className="w-full bg-gray-800/60 border border-gray-700/60 rounded-lg px-3.5 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/50 focus:border-emerald-600/50 transition-all text-sm"
+                className={inputClass}
+                style={inputStyle}
+                onFocus={inputFocus}
+                onBlur={inputBlur}
                 autoFocus
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">
+              <label className="block text-xs font-medium text-[#8b949e] mb-1.5 uppercase tracking-wider">
                 Registration Token
               </label>
               <input
@@ -87,31 +101,35 @@ export default function NewRunnerPage() {
                 value={token}
                 onChange={e => setToken(e.target.value)}
                 placeholder="Paste token from Gitea settings"
-                className="w-full bg-gray-800/60 border border-gray-700/60 rounded-lg px-3.5 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/50 focus:border-emerald-600/50 transition-all font-mono text-sm"
+                className={`${inputClass} font-mono`}
+                style={inputStyle}
+                onFocus={inputFocus}
+                onBlur={inputBlur}
                 required
               />
-              <p className="text-xs text-gray-600 mt-1.5">
-                Gitea → Settings → Actions → Runners
-              </p>
+              <p className="text-xs text-[#6e7681] mt-1.5">Gitea → Settings → Actions → Runners</p>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">
-                Runner Name <span className="text-gray-600 normal-case">(optional)</span>
+              <label className="block text-xs font-medium text-[#8b949e] mb-1.5 uppercase tracking-wider">
+                Runner Name <span className="text-[#6e7681] normal-case font-normal">(optional)</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="umbrel-runner"
-                className="w-full bg-gray-800/60 border border-gray-700/60 rounded-lg px-3.5 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/50 focus:border-emerald-600/50 transition-all text-sm"
+                className={inputClass}
+                style={inputStyle}
+                onFocus={inputFocus}
+                onBlur={inputBlur}
               />
             </div>
 
             <button
               type="button"
               onClick={() => setShowAdvanced(v => !v)}
-              className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-gray-400 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-[#6e7681] hover:text-[#8b949e] transition-colors"
             >
               <svg
                 className={`w-3 h-3 transition-transform ${showAdvanced ? 'rotate-90' : ''}`}
@@ -124,23 +142,31 @@ export default function NewRunnerPage() {
 
             {showAdvanced && (
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">Labels</label>
+                <label className="block text-xs font-medium text-[#8b949e] mb-1.5 uppercase tracking-wider">Labels</label>
                 <textarea
                   value={labels}
                   onChange={e => setLabels(e.target.value)}
                   rows={3}
-                  className="w-full bg-gray-800/60 border border-gray-700/60 rounded-lg px-3.5 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/50 focus:border-emerald-600/50 transition-all font-mono text-xs"
+                  className="w-full rounded-md px-3 py-2 text-xs text-[#e6edf3] placeholder-[#6e7681] font-mono outline-none transition-all resize-none"
+                  style={inputStyle}
+                  onFocus={inputFocus}
+                  onBlur={inputBlur}
                 />
-                <p className="text-xs text-gray-600 mt-1.5">
+                <p className="text-xs text-[#6e7681] mt-1.5">
                   Comma-separated, e.g. ubuntu-latest:docker://ubuntu:22.04
                 </p>
               </div>
             )}
 
             {error && (
-              <div className="flex items-start gap-2.5 bg-red-950/50 border border-red-800/50 text-red-300 px-3.5 py-3 rounded-xl text-sm">
-                <svg className="w-4 h-4 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <div
+                className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg text-sm text-[#f85149]"
+                style={{ background: 'rgba(248,81,73,.08)', border: '1px solid rgba(248,81,73,.2)' }}
+              >
+                <svg className="w-4 h-4 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
                 {error}
               </div>
@@ -150,7 +176,10 @@ export default function NewRunnerPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-50 text-white py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-emerald-900/40 text-sm"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-semibold text-white transition-all disabled:opacity-50"
+                style={{ background: '#609926' }}
+                onMouseEnter={e => { if (!loading) (e.currentTarget.style.background = '#6aaa28') }}
+                onMouseLeave={e => { (e.currentTarget.style.background = '#609926') }}
               >
                 {loading ? (
                   <>
@@ -164,13 +193,18 @@ export default function NewRunnerPage() {
               <button
                 type="button"
                 onClick={() => router.push('/')}
-                className="px-5 py-2.5 border border-gray-700/60 rounded-xl text-gray-500 hover:border-gray-600 hover:text-gray-300 transition-all text-sm"
+                className="px-5 py-2.5 rounded-md text-sm text-[#8b949e] hover:text-[#e6edf3] transition-all"
+                style={{ border: '1px solid #30363d' }}
+                onMouseEnter={e => { (e.currentTarget.style.borderColor = '#484f58') }}
+                onMouseLeave={e => { (e.currentTarget.style.borderColor = '#30363d') }}
               >
                 Cancel
               </button>
             </div>
+
           </form>
         </div>
+
       </div>
     </div>
   )
