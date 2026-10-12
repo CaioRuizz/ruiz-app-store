@@ -17,7 +17,7 @@ description: >-
   start, stop, or remove runners at any time, and watch live logs for each.
 
 developer: "Caio Ruiz"
-website: "https://github.com"
+website: "https://github.com/CaioRuizz/ruiz-app-store/tree/master/ruiz-gitea-runner"
 dependencies: []
 repo: "https://github.com/CaioRuizz/ruiz-app-store"
 support: "https://github.com/CaioRuizz/ruiz-app-store/issues"

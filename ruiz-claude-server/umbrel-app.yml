@@ -15,10 +15,10 @@ description: >-
   password and paste your Anthropic API key. Your key is stored locally on your
   Umbrel and never leaves it.
 developer: "Caio Ruiz"
-website: "https://github.com"
+website: "https://github.com/CaioRuizz/ruiz-app-store/tree/master/ruiz-claude-server"
 dependencies: []
-repo: "https://github.com/ruiz-app-store"
-support: "https://github.com/ruiz-app-store/issues"
+repo: "https://github.com/CaioRuizz/ruiz-app-store"
+support: "https://github.com/CaioRuizz/ruiz-app-store/issues"
 port: 4829
 gallery: []
 path: ""
