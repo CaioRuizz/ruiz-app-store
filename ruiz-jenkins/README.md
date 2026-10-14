@@ -31,6 +31,14 @@ Como a imagem oficial não traz a CLI `docker`, os builds usam o Docker por meio
    `jenkins/agent:latest-jdk21`, com o método de conexão **Attach Docker container**.
 4. Nos pipelines, use `agent { label 'docker' }`. Cada build roda num container novo dentro do Docker isolado.
 
+## Agente de build (`agent/`)
+
+`agent/Dockerfile` gera `caioruizz/ruiz-jenkins-agent:<versão do app>`: a imagem oficial `jenkins/agent` com
+Python 3, CLI do Docker e buildx. Na nuvem `dind` do Jenkins (configurada por `jenkins.yaml`, Configuration as
+Code), cada build roda num container desta imagem com o socket do Docker isolado montado em
+`/var/run/docker.sock`, então `docker build` e `docker buildx` funcionam dentro das pipelines sem tocar no
+Docker do Umbrel.
+
 ## Dados
 
 Tudo fica em `${APP_DATA_DIR}/data`:
