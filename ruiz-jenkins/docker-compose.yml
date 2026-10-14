@@ -39,7 +39,7 @@ services:
     stop_grace_period: 1m
 
   docker:
-    image: docker:29.8.2-dind
+    image: docker:1.0.0-dind
     privileged: true
     environment:
       DOCKER_TLS_CERTDIR: /certs
