@@ -1,0 +1,29 @@
+manifestVersion: 1
+id: ruiz-jenkins
+name: Jenkins
+tagline: Self-hosted CI/CD server with an isolated Docker for your pipelines
+icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-jenkins/icon.svg
+category: developer-tools
+version: "1.0.0"
+description: >-
+  Jenkins LTS ready to run pipelines on your Umbrel. It comes with Pipeline, Git,
+  GitHub and Gitea integrations, Docker Pipeline and Configuration as Code
+  already installed, so you can skip the setup wizard and start creating jobs.
+
+  Builds use their own Docker daemon (Docker-in-Docker) running next to Jenkins,
+  isolated from the Docker that runs your Umbrel apps: a pipeline can build and
+  run containers without touching anything else on your server.
+
+  Log in with the username "umbrel" and the password shown by Umbrel. The admin
+  password is reapplied on every start, so change it in Umbrel, not in Jenkins.
+developer: "Caio Ruiz"
+website: "https://github.com/CaioRuizz/ruiz-app-store/tree/master/ruiz-jenkins"
+dependencies: []
+repo: "https://github.com/CaioRuizz/ruiz-app-store"
+support: "https://github.com/CaioRuizz/ruiz-app-store/issues"
+port: 4831
+gallery: []
+path: ""
+defaultUsername: "umbrel"
+deterministicPassword: true
+releaseNotes: "First release: Jenkins 2.580.1 LTS (JDK 21) with an isolated Docker 29.8 daemon for builds."

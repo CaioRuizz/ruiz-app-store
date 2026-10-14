@@ -1,0 +1,53 @@
+version: "3.7"
+
+networks:
+  umbrel_main_network:
+    external: true
+  ruiz-jenkins_network:
+    driver: bridge
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: ruiz-jenkins_jenkins_1
+      APP_PORT: 8080
+      # O Jenkins tem login próprio; sem isso o Umbrel pediria uma segunda senha
+      # e bloquearia os webhooks do GitHub e do Gitea.
+      PROXY_AUTH_ADD: "false"
+    networks:
+      - umbrel_main_network
+      - ruiz-jenkins_network
+    restart: on-failure
+
+  jenkins:
+    image: caioruizz/ruiz-jenkins-jenkins:1.0.0
+    environment:
+      JENKINS_ADMIN_ID: umbrel
+      JENKINS_ADMIN_PASSWORD: ${APP_PASSWORD}
+      # Os builds falam com o Docker isolado do serviço "docker", nunca com o Docker do Umbrel
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: "1"
+    volumes:
+      - "${APP_DATA_DIR:-./umbrel-data}/data/jenkins_home:/var/jenkins_home"
+      - "${APP_DATA_DIR:-./umbrel-data}/data/docker-certs:/certs/client:ro"
+    depends_on:
+      - docker
+    networks:
+      - ruiz-jenkins_network
+    restart: on-failure
+    stop_grace_period: 1m
+
+  docker:
+    image: docker:29.8.2-dind
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    volumes:
+      - "${APP_DATA_DIR:-./umbrel-data}/data/docker-certs:/certs/client"
+      - "${APP_DATA_DIR:-./umbrel-data}/data/docker:/var/lib/docker"
+    networks:
+      ruiz-jenkins_network:
+        aliases:
+          - docker
+    restart: on-failure

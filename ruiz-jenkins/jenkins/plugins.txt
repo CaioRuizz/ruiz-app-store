@@ -1,0 +1,10 @@
+configuration-as-code
+workflow-aggregator
+pipeline-stage-view
+git
+github-branch-source
+gitea
+docker-workflow
+credentials-binding
+timestamper
+ws-cleanup
