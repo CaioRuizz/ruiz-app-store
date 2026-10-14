@@ -5,10 +5,13 @@ Docker isolado para os builds.
 
 ## Primeiro acesso
 
-1. Abra o app. O Jenkins mostra o assistente de instalação.
-2. A senha inicial aparece nos logs do app e fica em
-   `${APP_DATA_DIR}/data/jenkins_home/secrets/initialAdminPassword`.
-3. Instale os plugins sugeridos e crie o seu usuário administrador.
+1. Abra o app. O Jenkins mostra o assistente de instalação, pedindo a senha de administrador.
+2. Use a senha que o Umbrel mostra na página do app (usuário `admin`).
+3. Instale os plugins sugeridos e crie o seu usuário administrador, ou continue como `admin`.
+
+A senha do Umbrel é aplicada pelo script `init.groovy.d/umbrel-password.groovy`, que o Jenkins executa ao
+iniciar. Ele só age no primeiro início (deixa a marca `.umbrel-password-applied` no `jenkins_home`): se você
+trocar a senha depois, no próprio Jenkins, ela continua valendo.
 
 O login do Umbrel fica desligado (`PROXY_AUTH_ADD: "false"`) porque o Jenkins tem login próprio e os webhooks
 do GitHub e do Gitea precisam chegar sem autenticação extra.

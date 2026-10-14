@@ -22,8 +22,12 @@ services:
   jenkins:
     # Imagem oficial do Jenkins, sem customização
     image: jenkins/jenkins:2.580.1-lts-jdk21
+    environment:
+      # Senha do app gerada pelo Umbrel; init.groovy.d/umbrel-password.groovy a usa como senha inicial
+      APP_PASSWORD: ${APP_PASSWORD}
     volumes:
       - "${APP_DATA_DIR:-./umbrel-data}/data/jenkins_home:/var/jenkins_home"
+      - "${APP_DATA_DIR:-.}/init.groovy.d:/var/jenkins_home/init.groovy.d:ro"
       - "${APP_DATA_DIR:-./umbrel-data}/data/docker-socket:/var/run/dind"
     depends_on:
       - docker
