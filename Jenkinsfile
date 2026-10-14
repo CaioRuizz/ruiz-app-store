@@ -14,8 +14,9 @@ pipeline {
     stage('Verificar commit') {
       steps {
         script {
-          // commits do próprio CI (atualização de versões) não disparam outro build
-          env.SKIP_CI = sh(script: "git log -1 --pretty=%B | grep -qF '[skip ci]' && echo true || echo false", returnStdout: true).trim()
+          // commits do próprio CI (atualização de versões) não disparam outro build;
+          // só o título do commit conta, para um "[skip ci]" citado no corpo não pular o build
+          env.SKIP_CI = sh(script: "git log -1 --pretty=%s | grep -qF '[skip ci]' && echo true || echo false", returnStdout: true).trim()
           if (env.SKIP_CI == 'true') {
             currentBuild.description = 'Pulado: [skip ci]'
           }

@@ -1,3 +1,10 @@
+## CI/CD
+
+O build das imagens roda no Jenkins (http://100.92.14.38:4831, job `github/ruiz-app-store`), definido no
+`Jenkinsfile` da raiz: para cada `ruiz-*/*/Dockerfile`, gera `caioruizz/<app>-<pasta>:<versão do umbrel-app.yml>`
+e `:latest`, publica no Docker Hub e atualiza as tags das imagens desta loja nos `docker-compose.yml`. Commits
+com `[skip ci]` no título não disparam build. O Jenkins consulta o GitHub a cada 5 minutos.
+
 ## Umbrel Community App Store Template
 
 This repository is a template to create an Umbrel Community App Store. These additional app stores allow developers to distribute applications without submitting to the [Official Umbrel App Store](https://github.com/getumbrel/umbrel-apps).
