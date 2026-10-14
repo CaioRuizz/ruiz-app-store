@@ -4,18 +4,19 @@ name: Jenkins
 tagline: Self-hosted CI/CD server with an isolated Docker for your pipelines
 icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-jenkins/icon.svg
 category: developer-tools
-version: "1.0.0"
+version: "1.0.1"
 description: >-
-  Jenkins LTS ready to run pipelines on your Umbrel. It comes with Pipeline, Git,
-  GitHub and Gitea integrations, Docker Pipeline and Configuration as Code
-  already installed, so you can skip the setup wizard and start creating jobs.
+  The official Jenkins LTS image, ready to run on your Umbrel, plus a separate
+  Docker daemon (Docker-in-Docker) for your builds.
 
-  Builds use their own Docker daemon (Docker-in-Docker) running next to Jenkins,
-  isolated from the Docker that runs your Umbrel apps: a pipeline can build and
-  run containers without touching anything else on your server.
+  On first launch Jenkins shows its setup wizard. The initial admin password is
+  printed in the app logs and saved in
+  data/jenkins_home/secrets/initialAdminPassword inside the app data folder.
+  Install the suggested plugins and create your admin user.
 
-  Log in with the username "umbrel" and the password shown by Umbrel. The admin
-  password is reapplied on every start, so change it in Umbrel, not in Jenkins.
+  To build and run containers in your pipelines, install the "Docker" plugin and
+  add a Docker cloud pointing to unix:///var/run/dind/docker.sock. That daemon is isolated from
+  the Docker that runs your Umbrel apps, so a pipeline cannot touch them.
 developer: "Caio Ruiz"
 website: "https://github.com/CaioRuizz/ruiz-app-store/tree/master/ruiz-jenkins"
 dependencies: []
@@ -24,6 +25,6 @@ support: "https://github.com/CaioRuizz/ruiz-app-store/issues"
 port: 4831
 gallery: []
 path: ""
-defaultUsername: "umbrel"
-deterministicPassword: true
-releaseNotes: "First release: Jenkins 2.580.1 LTS (JDK 21) with an isolated Docker 29.8 daemon for builds."
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: "Uses the official Jenkins 2.580.1 LTS (JDK 21) image, with an isolated Docker 29.8 daemon for builds."

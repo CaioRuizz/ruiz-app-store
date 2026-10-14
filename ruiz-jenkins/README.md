@@ -1,53 +1,42 @@
 # Jenkins (Umbrel)
 
-Jenkins LTS para rodar CI/CD no Umbrel, com um daemon Docker isolado para os builds.
+A imagem oficial do Jenkins LTS (`jenkins/jenkins:2.580.1-lts-jdk21`), sem customização, mais um daemon
+Docker isolado para os builds.
 
-## O que vem pronto
+## Primeiro acesso
 
-- **Jenkins 2.580.1 LTS** (JDK 21), sem o assistente de instalação.
-- **Plugins:** Pipeline, Pipeline Stage View, Git, GitHub Branch Source, Gitea, Docker Pipeline,
-  Credentials Binding, Timestamper, Workspace Cleanup e Configuration as Code.
-- **Docker isolado:** o serviço `docker` (Docker-in-Docker) roda ao lado do Jenkins e é o único Docker que
-  os pipelines enxergam (`DOCKER_HOST=tcp://docker:2376`, com TLS). Um build pode criar, rodar e apagar
-  containers sem afetar os apps do Umbrel. A CLI `docker` e o `buildx` já estão na imagem do Jenkins.
+1. Abra o app. O Jenkins mostra o assistente de instalação.
+2. A senha inicial aparece nos logs do app e fica em
+   `${APP_DATA_DIR}/data/jenkins_home/secrets/initialAdminPassword`.
+3. Instale os plugins sugeridos e crie o seu usuário administrador.
 
-## Acesso
+O login do Umbrel fica desligado (`PROXY_AUTH_ADD: "false"`) porque o Jenkins tem login próprio e os webhooks
+do GitHub e do Gitea precisam chegar sem autenticação extra.
 
-- Usuário `umbrel` e a senha que o Umbrel mostra na página do app.
-- A senha e a segurança vêm de `jenkins/casc.yaml` (Configuration as Code) e são reaplicadas a cada início:
-  troque a senha no Umbrel, não no Jenkins.
-- O login do Umbrel fica desligado (`PROXY_AUTH_ADD: "false"`) porque o Jenkins tem login próprio e os webhooks
-  do GitHub e do Gitea precisam chegar sem autenticação extra.
+## Docker para os pipelines
+
+O serviço `docker` (Docker-in-Docker) roda ao lado do Jenkins e só aceita conexões pelo socket
+`/var/run/dind/docker.sock`, compartilhado com o Jenkins. Não abre porta de rede e não tem acesso ao Docker
+que roda os apps do Umbrel: um build pode criar, rodar e apagar containers sem afetar mais nada.
+
+Como a imagem oficial não traz a CLI `docker`, os builds usam o Docker por meio de agentes:
+
+1. Instale o plugin **Docker** (Gerenciar Jenkins → Plugins).
+2. Em **Gerenciar Jenkins → Clouds → New cloud → Docker**, use o Docker Host URI
+   `unix:///var/run/dind/docker.sock` e clique em **Test Connection**.
+3. Crie um **Docker Agent template** com um label (por exemplo `docker`) e uma imagem de agente, como
+   `jenkins/agent:latest-jdk21`, com o método de conexão **Attach Docker container**.
+4. Nos pipelines, use `agent { label 'docker' }`. Cada build roda num container novo dentro do Docker isolado.
 
 ## Dados
 
 Tudo fica em `${APP_DATA_DIR}/data`:
 
-- `jenkins_home/`: jobs, histórico, credenciais e plugins instalados pela interface.
-- `docker/`: imagens e cache do Docker dos builds.
-- `docker-certs/`: certificados TLS gerados pelo serviço `docker` e lidos pelo Jenkins.
+- `jenkins_home/`: jobs, histórico, credenciais e plugins.
+- `docker/`: imagens, containers e cache do Docker dos builds.
+- `docker-socket/`: o socket do Docker isolado (recriado a cada início).
 
-## Exemplo de pipeline
+## Atualizações
 
-```groovy
-pipeline {
-  agent any
-  stages {
-    stage('Build') {
-      steps {
-        sh 'docker build -t meu-app .'
-      }
-    }
-  }
-}
-```
-
-## Imagem
-
-`jenkins/Dockerfile` é publicado como `caioruizz/ruiz-jenkins-jenkins:<versão>` pelo workflow do repositório.
-Para testar localmente fora do Umbrel:
-
-```sh
-docker build -t caioruizz/ruiz-jenkins-jenkins:1.0.0 jenkins
-# rode só os serviços jenkins e docker do docker-compose.yml, com APP_DATA_DIR e APP_PASSWORD definidos
-```
+As versões do Jenkins e do Docker estão fixadas em `docker-compose.yml`. Para atualizar, troque as tags e
+suba a versão em `umbrel-app.yml`.

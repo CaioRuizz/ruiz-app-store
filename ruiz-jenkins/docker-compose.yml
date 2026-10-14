@@ -20,17 +20,11 @@ services:
     restart: on-failure
 
   jenkins:
-    image: caioruizz/ruiz-jenkins-jenkins:1.0.0
-    environment:
-      JENKINS_ADMIN_ID: umbrel
-      JENKINS_ADMIN_PASSWORD: ${APP_PASSWORD}
-      # Os builds falam com o Docker isolado do serviço "docker", nunca com o Docker do Umbrel
-      DOCKER_HOST: tcp://docker:2376
-      DOCKER_CERT_PATH: /certs/client
-      DOCKER_TLS_VERIFY: "1"
+    # Imagem oficial do Jenkins, sem customização
+    image: jenkins/jenkins:2.580.1-lts-jdk21
     volumes:
       - "${APP_DATA_DIR:-./umbrel-data}/data/jenkins_home:/var/jenkins_home"
-      - "${APP_DATA_DIR:-./umbrel-data}/data/docker-certs:/certs/client:ro"
+      - "${APP_DATA_DIR:-./umbrel-data}/data/docker-socket:/var/run/dind"
     depends_on:
       - docker
     networks:
@@ -38,16 +32,19 @@ services:
     restart: on-failure
     stop_grace_period: 1m
 
+  # Docker isolado para os builds (Docker-in-Docker). O Jenkins fala com ele pelo socket
+  # /var/run/dind/docker.sock (plugin "Docker", nuvem unix:///var/run/dind/docker.sock), sem porta
+  # de rede e sem acesso ao Docker que roda os apps do Umbrel. O socket pertence ao grupo 1000,
+  # o mesmo usuário do Jenkins.
   docker:
-    image: docker:1.0.0-dind
+    image: docker:29.8.2-dind
     privileged: true
+    command: ["dockerd", "--host=unix:///var/run/dind/docker.sock", "--group=1000"]
     environment:
-      DOCKER_TLS_CERTDIR: /certs
+      DOCKER_TLS_CERTDIR: ""
     volumes:
-      - "${APP_DATA_DIR:-./umbrel-data}/data/docker-certs:/certs/client"
       - "${APP_DATA_DIR:-./umbrel-data}/data/docker:/var/lib/docker"
+      - "${APP_DATA_DIR:-./umbrel-data}/data/docker-socket:/var/run/dind"
     networks:
-      ruiz-jenkins_network:
-        aliases:
-          - docker
+      - ruiz-jenkins_network
     restart: on-failure
