@@ -40,3 +40,9 @@ Tudo fica em `${APP_DATA_DIR}/data`:
 
 As versões do Jenkins e do Docker estão fixadas em `docker-compose.yml`. Para atualizar, troque as tags e
 suba a versão em `umbrel-app.yml`.
+
+## Ícone
+
+Logo oficial do Jenkins, de [jenkins.io/artwork](https://www.jenkins.io/artwork/), sob a licença
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Foi apenas centralizado num fundo branco
+quadrado para o Umbrel.
