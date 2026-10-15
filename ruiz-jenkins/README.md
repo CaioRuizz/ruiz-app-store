@@ -57,3 +57,17 @@ suba a versão em `umbrel-app.yml`.
 Logo oficial do Jenkins, de [jenkins.io/artwork](https://www.jenkins.io/artwork/), sob a licença
 [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Foi apenas centralizado num fundo branco
 quadrado para o Umbrel.
+
+## Configuração do Docker isolado (`daemon.json`)
+
+O Docker isolado lê `data/docker-config/daemon.json` ao iniciar, se o arquivo existir. A pasta fica nos dados
+do app (`~/umbrel/app-data/ruiz-jenkins/data/docker-config`) e sobrevive às atualizações. Exemplo, para aceitar um
+registry HTTP da rede local:
+
+```json
+{ "insecure-registries": ["192.168.68.103:34947"] }
+```
+
+Depois de criar ou editar o arquivo, reinicie o app. Não use a chave `hosts`: o socket já é definido no
+`docker-compose.yml`, e as duas configurações juntas impedem o Docker de iniciar. Um JSON inválido também
+impede o início; confira com `docker logs`.

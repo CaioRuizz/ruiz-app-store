@@ -48,6 +48,9 @@ services:
       DOCKER_TLS_CERTDIR: ""
     volumes:
       - "${APP_DATA_DIR:-./umbrel-data}/data/docker:/var/lib/docker"
+      # Configuração opcional do Docker isolado: um daemon.json criado nesta pasta (por exemplo,
+      # com "insecure-registries") é lido pelo dockerd ao iniciar e sobrevive às atualizações do app.
+      - "${APP_DATA_DIR:-./umbrel-data}/data/docker-config:/etc/docker"
       - "${APP_DATA_DIR:-./umbrel-data}/data/docker-socket:/var/run/dind"
     networks:
       - ruiz-jenkins_network

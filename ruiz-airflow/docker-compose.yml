@@ -136,6 +136,9 @@ services:
       DOCKER_TLS_CERTDIR: ""
     volumes:
       - "${APP_DATA_DIR:-.}/data/docker:/var/lib/docker"
+      # Configuração opcional do Docker isolado: um daemon.json criado nesta pasta (por exemplo,
+      # com "insecure-registries") é lido pelo dockerd ao iniciar e sobrevive às atualizações do app.
+      - "${APP_DATA_DIR:-.}/data/docker-config:/etc/docker"
       - "${APP_DATA_DIR:-.}/data/docker-socket:/var/run/dind"
     networks:
       - ruiz-airflow_network

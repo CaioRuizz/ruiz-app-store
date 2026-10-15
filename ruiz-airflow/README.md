@@ -72,3 +72,17 @@ Docker que roda os apps do Umbrel.
 O ícone é o logo do Apache Airflow, extraído de
 [`apache/airflow`](https://github.com/apache/airflow/blob/main/airflow-core/src/airflow/ui/src/assets/AirflowPin.tsx)
 (licença Apache 2.0). Apache Airflow e o logo são marcas da Apache Software Foundation.
+
+## Configuração do Docker isolado (`daemon.json`)
+
+O Docker isolado lê `data/docker-config/daemon.json` ao iniciar, se o arquivo existir. A pasta fica nos dados
+do app (`~/umbrel/app-data/ruiz-airflow/data/docker-config`) e sobrevive às atualizações. Exemplo, para aceitar um
+registry HTTP da rede local:
+
+```json
+{ "insecure-registries": ["192.168.68.103:34947"] }
+```
+
+Depois de criar ou editar o arquivo, reinicie o app. Não use a chave `hosts`: o socket já é definido no
+`docker-compose.yml`, e as duas configurações juntas impedem o Docker de iniciar. Um JSON inválido também
+impede o início; confira com `docker logs`.
