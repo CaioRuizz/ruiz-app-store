@@ -1,0 +1,142 @@
+version: "3.7"
+
+networks:
+  umbrel_main_network:
+    external: true
+  ruiz-airflow_network:
+    driver: bridge
+
+# Configuração comum aos serviços do Airflow (imagem oficial, sem customização)
+x-airflow-common: &airflow-common
+  image: apache/airflow:3.3.2-python3.12
+  # Mesmo usuário dos arquivos do Umbrel; o grupo 0 é o que a imagem oficial espera
+  user: "1000:0"
+  environment: &airflow-env
+    AIRFLOW_CONFIG: /opt/airflow/config/airflow.cfg
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://api-server:8080/execution/
+    AIRFLOW__CORE__DEFAULT_TIMEZONE: America/Sao_Paulo
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${APP_SEED:-airflow}@postgres/airflow
+    # Chaves geradas por scripts/init.sh na primeira vez e guardadas em data/config
+    AIRFLOW__CORE__FERNET_KEY_CMD: cat /opt/airflow/config/fernet.key
+    AIRFLOW__API_AUTH__JWT_SECRET_CMD: cat /opt/airflow/config/jwt.secret
+    AIRFLOW__API__SECRET_KEY_CMD: cat /opt/airflow/config/api.secret
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+    # DockerOperator e DockerSwarmOperator usam o Docker isolado deste app por padrão
+    DOCKER_HOST: unix:///var/run/dind/docker.sock
+  volumes:
+    - "${APP_DATA_DIR:-.}/data/dags:/opt/airflow/dags"
+    - "${APP_DATA_DIR:-.}/data/logs:/opt/airflow/logs"
+    - "${APP_DATA_DIR:-.}/data/plugins:/opt/airflow/plugins"
+    - "${APP_DATA_DIR:-.}/data/config:/opt/airflow/config"
+    - "${APP_DATA_DIR:-.}/data/docker-socket:/var/run/dind"
+  networks:
+    - ruiz-airflow_network
+  restart: on-failure
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: ruiz-airflow_api-server_1
+      APP_PORT: 8080
+      # O Airflow tem login próprio; sem isso o Umbrel pediria uma segunda senha
+      # e bloquearia o acesso à API REST.
+      PROXY_AUTH_ADD: "false"
+    networks:
+      - umbrel_main_network
+      - ruiz-airflow_network
+    restart: on-failure
+
+  postgres:
+    image: postgres:17.11
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: ${APP_SEED:-airflow}
+      POSTGRES_DB: airflow
+      # Subpasta: o Postgres não inicializa numa pasta que já tem arquivos (como o .gitkeep)
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - "${APP_DATA_DIR:-.}/data/postgres:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow", "-d", "airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - ruiz-airflow_network
+    restart: on-failure
+    stop_grace_period: 1m
+
+  # Gera as chaves, migra o banco e cria o admin com a senha do Umbrel; depois encerra
+  init:
+    <<: *airflow-common
+    entrypoint: ["bash", "/opt/airflow/scripts/init.sh"]
+    environment:
+      <<: *airflow-env
+      _AIRFLOW_DB_MIGRATE: "true"
+      _AIRFLOW_WWW_USER_CREATE: "true"
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: ${APP_PASSWORD:-admin}
+    volumes:
+      - "${APP_DATA_DIR:-.}/data/config:/opt/airflow/config"
+      - "${APP_DATA_DIR:-.}/scripts:/opt/airflow/scripts:ro"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api-server:
+    <<: *airflow-common
+    command: api-server
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/api/v2/monitor/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    depends_on: &after-init
+      init:
+        condition: service_completed_successfully
+      docker:
+        condition: service_started
+
+  scheduler:
+    <<: *airflow-common
+    command: scheduler
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8974/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    depends_on: *after-init
+    stop_grace_period: 1m
+
+  dag-processor:
+    <<: *airflow-common
+    command: dag-processor
+    depends_on: *after-init
+
+  triggerer:
+    <<: *airflow-common
+    command: triggerer
+    depends_on: *after-init
+
+  # Docker isolado para as tarefas (Docker-in-Docker), acessível só pelo socket
+  # /var/run/dind/docker.sock, sem porta de rede e sem acesso ao Docker que roda os apps
+  # do Umbrel. O socket pertence ao grupo 0, o grupo do usuário do Airflow.
+  docker:
+    image: docker:29.8.2-dind
+    privileged: true
+    command: ["dockerd", "--host=unix:///var/run/dind/docker.sock", "--group=0"]
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    volumes:
+      - "${APP_DATA_DIR:-.}/data/docker:/var/lib/docker"
+      - "${APP_DATA_DIR:-.}/data/docker-socket:/var/run/dind"
+    networks:
+      - ruiz-airflow_network
+    restart: on-failure
