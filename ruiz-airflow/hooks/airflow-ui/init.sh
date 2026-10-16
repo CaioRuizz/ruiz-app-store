@@ -26,6 +26,8 @@ if [[ ! -f "$CONFIG_DIR/airflow.cfg" ]]; then
   cat > "$CONFIG_DIR/airflow.cfg" <<'CFG'
 # Configuração do Airflow deste app. Variáveis AIRFLOW__* definidas no docker-compose.yml
 # têm precedência sobre este arquivo. Depois de editar, reinicie o app no Umbrel.
+# As origens das DAGs também podem ser configuradas pela tela Admin > DAG bundles; depois que
+# ela salva uma configuração (data/config/bundles.json), essa passa a valer no lugar da linha abaixo.
 
 [dag_processor]
 # Por padrão as DAGs são lidas da pasta data/dags do app. Para ler de um repositório Git

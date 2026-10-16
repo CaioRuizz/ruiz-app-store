@@ -20,7 +20,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://api-server:8080/execution/
     AIRFLOW__CORE__DEFAULT_TIMEZONE: America/Sao_Paulo
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${APP_SEED:-airflow}@postgres/airflow
-    # Chaves geradas por scripts/init.sh na primeira vez e guardadas em data/config
+    # Chaves geradas por hooks/airflow-ui/init.sh na primeira vez e guardadas em data/config
     AIRFLOW__CORE__FERNET_KEY_CMD: cat /opt/airflow/config/fernet.key
     AIRFLOW__API_AUTH__JWT_SECRET_CMD: cat /opt/airflow/config/jwt.secret
     AIRFLOW__API__SECRET_KEY_CMD: cat /opt/airflow/config/api.secret
@@ -33,6 +33,10 @@ x-airflow-common: &airflow-common
     - "${APP_DATA_DIR:-.}/data/plugins:/opt/airflow/plugins"
     - "${APP_DATA_DIR:-.}/data/config:/opt/airflow/config"
     - "${APP_DATA_DIR:-.}/data/docker-socket:/var/run/dind"
+    # Tela "DAG bundles" e scripts do app. Ficam em hooks/ porque o Umbrel só copia essa pasta
+    # (além do compose) nas atualizações; nenhum arquivo dela tem nome de hook, então nada roda
+    # no host.
+    - "${APP_DATA_DIR:-.}/hooks/airflow-ui:/opt/airflow/plugins/ruiz:ro"
   networks:
     - ruiz-airflow_network
   restart: on-failure
@@ -73,7 +77,7 @@ services:
   # Gera as chaves, migra o banco e cria o admin com a senha do Umbrel; depois encerra
   init:
     <<: *airflow-common
-    entrypoint: ["bash", "/opt/airflow/scripts/init.sh"]
+    entrypoint: ["bash", "/opt/airflow/plugins/ruiz/init.sh"]
     environment:
       <<: *airflow-env
       _AIRFLOW_DB_MIGRATE: "true"
@@ -82,7 +86,7 @@ services:
       _AIRFLOW_WWW_USER_PASSWORD: ${APP_PASSWORD:-admin}
     volumes:
       - "${APP_DATA_DIR:-.}/data/config:/opt/airflow/config"
-      - "${APP_DATA_DIR:-.}/scripts:/opt/airflow/scripts:ro"
+      - "${APP_DATA_DIR:-.}/hooks/airflow-ui:/opt/airflow/plugins/ruiz:ro"
     depends_on:
       postgres:
         condition: service_healthy
@@ -90,7 +94,8 @@ services:
 
   api-server:
     <<: *airflow-common
-    command: api-server
+    # run.sh aplica a configuração da tela "DAG bundles" e reinicia o componente quando pedido
+    command: ["bash", "/opt/airflow/plugins/ruiz/run.sh", "api-server"]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8080/api/v2/monitor/health"]
       interval: 30s
@@ -105,7 +110,7 @@ services:
 
   scheduler:
     <<: *airflow-common
-    command: scheduler
+    command: ["bash", "/opt/airflow/plugins/ruiz/run.sh", "scheduler"]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8974/health"]
       interval: 30s
@@ -117,12 +122,12 @@ services:
 
   dag-processor:
     <<: *airflow-common
-    command: dag-processor
+    command: ["bash", "/opt/airflow/plugins/ruiz/run.sh", "dag-processor"]
     depends_on: *after-init
 
   triggerer:
     <<: *airflow-common
-    command: triggerer
+    command: ["bash", "/opt/airflow/plugins/ruiz/run.sh", "triggerer"]
     depends_on: *after-init
 
   # Docker isolado para as tarefas (Docker-in-Docker), acessível só pelo socket

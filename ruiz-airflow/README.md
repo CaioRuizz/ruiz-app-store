@@ -25,7 +25,7 @@ precisa ser acessível por scripts e pelo Jenkins.
 
 ## Configuração e chaves
 
-Na primeira vez, `scripts/init.sh` gera em `data/config`:
+Na primeira vez, `hooks/airflow-ui/init.sh` gera em `data/config`:
 
 - `fernet.key`: criptografa senhas de conexões e variáveis no banco. **Faça backup dela junto com o banco**: sem
   ela, as conexões salvas não podem ser lidas.
@@ -33,18 +33,34 @@ Na primeira vez, `scripts/init.sh` gera em `data/config`:
 - `airflow.cfg`: configuração editável. As variáveis `AIRFLOW__*` do `docker-compose.yml` têm precedência sobre
   ela. Depois de editar, reinicie o app.
 
-## DAGs
+## DAGs: tela "DAG bundles"
 
-Por padrão as DAGs são lidas de `data/dags`. Para lê-las de um repositório Git (Gitea, GitHub…):
+Em **Admin → DAG bundles** você define de onde o Airflow lê as DAGs, sem editar arquivos nem reiniciar o app
+no Umbrel:
 
-1. Em **Admin → Connections**, crie uma conexão do tipo **Git** com id `gitea_dags`, a URL do repositório em
-   **Repository URL** e um token de acesso de leitura em **Password**. O token fica criptografado com a chave
-   Fernet.
-2. Em `data/config/airflow.cfg`, troque `dag_bundle_config_list` pela linha comentada no próprio arquivo
-   (`GitDagBundle`, branch `main`, atualização a cada 60 segundos).
-3. Reinicie o app.
+1. **Adicionar repositório Git**: nome, URL HTTP(S) de clone, usuário, token de leitura, branch, subpasta das
+   DAGs (por exemplo `airflow/dags`) e intervalo de atualização. O token vai para uma conexão Git
+   (`bundle_<nome>`, em Admin → Connections), criptografada com a chave Fernet.
+2. **Testar acesso** confere URL, token e branch antes de salvar.
+3. **Salvar** grava a configuração em `data/config/bundles.json`; **Aplicar e reiniciar** reinicia os componentes
+   do Airflow em poucos segundos. A tela avisa se houver tarefas em execução, que seriam interrompidas.
 
-Cada execução registra a versão (commit) das DAGs usada, e um merge na `main` passa a valer em até um minuto.
+Por padrão, as DAGs vêm da pasta `data/dags` (bundle `dags-folder`), que pode continuar junto com os
+repositórios. Depois que a tela salva uma configuração, ela vale no lugar de `dag_bundle_config_list` do
+`airflow.cfg`; para voltar a usar o arquivo, apague `data/config/bundles.json` e reinicie o app.
+
+Um merge na branch configurada chega ao Airflow no intervalo de atualização, e cada execução registra o commit
+das DAGs que usou.
+
+### Como funciona
+
+- A tela é um plugin do Airflow (`hooks/airflow-ui/ruiz_bundles.py` e `dag_bundles.html`), protegido pelo login
+  do próprio Airflow e disponível só para quem pode editar conexões.
+- Cada componente roda por `hooks/airflow-ui/run.sh`, que carrega `bundles.json` ao iniciar e encerra o processo
+  quando a tela grava `data/config/restart-request`; o Docker o reinicia (`restart: on-failure`). Assim o app não
+  precisa de acesso ao Docker do Umbrel.
+- Os arquivos ficam em `hooks/` porque, nas atualizações, o Umbrel só copia o `docker-compose.yml`, os templates,
+  o `exports.sh` e essa pasta. Nenhum deles tem nome de hook, então nada roda no host.
 
 ## Tarefas em containers
 
