@@ -29,13 +29,31 @@ O Bridge se atualiza sozinho, sem precisar mexer no app:
 
 `BRIDGE_VERSION` só define a versão de partida de instalações novas; atualizá-lo é opcional.
 
+## Certificado TLS (iPhone e iPad)
+
+O certificado que o Bridge gera sozinho vale só para `127.0.0.1` e por 20 anos, e o iOS recusa os dois (o Bridge
+registra `remote error: tls: unknown certificate`). Por isso `tls-setup.sh` mantém em `data/bridge/tls`:
+
+- uma autoridade certificadora (CA) própria deste Umbrel, válida por 10 anos, que você instala nos aparelhos;
+- um certificado de servidor assinado por ela, com 825 dias (limite do iOS), válido para os nomes do Umbrel
+  (`BRIDGE_TLS_HOSTS`, por padrão o nome do Umbrel e `umbrel.local`) e para os nomes ou IPs listados em
+  `data/bridge/tls/hosts.txt`. Ele é renovado sozinho 30 dias antes de vencer (ou quando a lista muda), sem trocar
+  a CA, e o Bridge é reiniciado para usá-lo;
+- uma página na porta **4834** (`http://<umbrel>:4834`) com o perfil do iPhone/iPad: CA + conta de e-mail
+  (servidor, portas 1143/1025 e SSL). Só conteúdo público; o iOS pede e-mail, usuário e senha do Bridge.
+
+O servidor do perfil é o primeiro nome de `hosts.txt` ou, se o arquivo estiver vazio, o nome do Umbrel (que
+funciona pelo MagicDNS do Tailscale).
+
 ## Primeiro acesso
 
 1. Abra o app e, no terminal, rode `login`. Informe o e-mail, a senha e o código de 2FA do Proton.
 2. Espere a sincronização inicial (`info` mostra o andamento; caixas grandes levam alguns minutos).
 3. Troque as portas para SSL, para o iOS sempre conectar com criptografia: `change imap-security` e
    `change smtp-security`, respondendo `yes`.
-4. Rode `info` e anote o usuário e a **senha do Bridge** (diferente da senha do Proton) para configurar o cliente.
+4. Passe a usar o certificado deste app: `cert import`, informando `/data/tls/server.pem` e
+   `/data/tls/server-key.pem`. Depois rode `exit`; o Bridge reinicia sozinho em 5 segundos.
+5. Rode `info` e anote o usuário e a **senha do Bridge** (diferente da senha do Proton) para configurar o cliente.
 
 ## Segurança
 

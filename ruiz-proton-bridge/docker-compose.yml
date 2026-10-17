@@ -8,7 +8,11 @@ services:
       # O terminal web dá acesso à conta do Proton: o login do Umbrel fica ligado (padrão).
 
   bridge:
-    image: caioruizz/ruiz-proton-bridge-bridge:1.1.0
+    image: caioruizz/ruiz-proton-bridge-bridge:1.2.0
+    environment:
+      # Nomes do certificado TLS do IMAP/SMTP (veja bridge/tls-setup.sh); o nome do Umbrel funciona pelo
+      # MagicDNS do Tailscale e na rede local. IPs extras vão em data/bridge/tls/hosts.txt.
+      BRIDGE_TLS_HOSTS: "${DEVICE_HOSTNAME:-umbrel} ${DEVICE_DOMAIN_NAME:-umbrel.local}"
     volumes:
       - "${APP_DATA_DIR:-.}/data/bridge:/data"
     ports:
@@ -16,5 +20,7 @@ services:
       # Tailscale; não encaminhe estas portas no roteador.
       - "1143:2143"
       - "1025:2025"
+      # Página com o perfil do iPhone/iPad e o certificado da CA (só conteúdo público)
+      - "4834:8080"
     restart: on-failure
     stop_grace_period: 30s

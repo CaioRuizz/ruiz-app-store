@@ -30,17 +30,17 @@ RUN case "${TARGETARCH:-amd64}" in \
 FROM debian:trixie-20261005-slim
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      ca-certificates libfido2-1 libsecret-1-0 pass gnupg socat tmux tini procps \
+      ca-certificates libfido2-1 libsecret-1-0 pass gnupg socat tmux tini procps openssl busybox \
  && rm -rf /var/lib/apt/lists/* \
  && useradd --uid 1000 --create-home --home-dir /home/bridge bridge
 # proton-bridge é o launcher oficial: aplica as atualizações automáticas do Proton (assinadas, conferidas
 # com a chave do Proton e guardadas em /data) e, sem atualização mais nova, roda o bridge da imagem.
 COPY --from=build /out/bridge /out/proton-bridge /usr/local/bin/
 COPY --from=ttyd /ttyd /usr/local/bin/ttyd
-COPY start.sh bridge-loop.sh apply-updates.sh /usr/local/bin/
+COPY start.sh bridge-loop.sh apply-updates.sh tls-setup.sh /usr/local/bin/
 USER 1000:1000
 # Tudo que o Bridge guarda (cofre, cache, chave GPG e cofre do "pass") fica em /data
 ENV HOME=/data TERM=xterm-256color LANG=C.UTF-8
-EXPOSE 7681 2143 2025
+EXPOSE 7681 8080 2143 2025
 ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["/usr/local/bin/start.sh"]

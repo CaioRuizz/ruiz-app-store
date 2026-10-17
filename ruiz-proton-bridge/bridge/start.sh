@@ -15,6 +15,10 @@ if [[ ! -f "$HOME/.password-store/.gpg-id" ]]; then
   pass init "ProtonMail Bridge"
 fi
 
+# Certificado TLS que o iOS aceita e página com o perfil do iPhone/iPad (só conteúdo público)
+/usr/local/bin/tls-setup.sh
+busybox httpd -f -p 8080 -h "$HOME/tls/public" -c "$HOME/tls/httpd.conf" &
+
 # O Bridge só escuta em 127.0.0.1; o socat expõe as portas para fora do container.
 # IMAP 1143 -> 2143 e SMTP 1025 -> 2025 (o docker-compose mapeia para 1143 e 1025 no Umbrel).
 socat TCP-LISTEN:2143,fork,reuseaddr TCP:127.0.0.1:1143 &

@@ -5,7 +5,9 @@
 # updates/<versão>, mas só passa a usá-la quando reinicia. A cada 15 minutos este script compara a
 # versão instalada mais nova com a que está rodando e, se houver uma mais nova, encerra o Bridge;
 # o bridge-loop.sh o inicia de novo pelo launcher, já na versão nova. A interrupção dura segundos.
+# Também renova o certificado TLS perto do vencimento (tls-setup.sh) e reinicia o Bridge para usá-lo.
 UPDATES_DIR="$HOME/.local/share/protonmail/bridge-v3/updates"
+SERVER_CERT="$HOME/tls/server.pem"
 
 running_version() {
   local pid exe
@@ -19,6 +21,15 @@ running_version() {
 
 while true; do
   sleep "${APPLY_UPDATES_INTERVAL:-900}"
+
+  cert_before=$(stat -c %Y "$SERVER_CERT" 2>/dev/null || echo 0)
+  /usr/local/bin/tls-setup.sh >/dev/null || true
+  if [[ "$(stat -c %Y "$SERVER_CERT" 2>/dev/null || echo 0)" != "$cert_before" ]]; then
+    echo "$(date '+%F %T') Certificado TLS renovado; reiniciando o Bridge."
+    pkill -TERM -x bridge || true
+    continue
+  fi
+
   [[ -d "$UPDATES_DIR" ]] || continue
   newest=$(find "$UPDATES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
