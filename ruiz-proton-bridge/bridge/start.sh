@@ -20,6 +20,12 @@ fi
 socat TCP-LISTEN:2143,fork,reuseaddr TCP:127.0.0.1:1143 &
 socat TCP-LISTEN:2025,fork,reuseaddr TCP:127.0.0.1:1025 &
 
+# Reinícios ficam por conta do bridge-loop.sh. O reinício interno do Bridge após uma falha abriria um
+# segundo processo fora da sessão tmux, disputando as portas; com o contador no máximo, ele não age.
+export BRIDGE_CRASH_COUNT=10
+
+/usr/local/bin/apply-updates.sh &
+
 tmux kill-session -t bridge 2>/dev/null || true
 tmux new-session -d -s bridge -x 200 -y 50 /usr/local/bin/bridge-loop.sh
 tmux set-option -t bridge status off

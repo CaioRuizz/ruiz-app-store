@@ -4,7 +4,7 @@ name: Proton Mail Bridge
 tagline: Use your Proton Mail account in Apple Mail and other IMAP clients
 icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-proton-bridge/icon.svg
 category: networking
-version: "3.27.1"
+version: "1.1.0"
 description: >-
   Proton Mail Bridge built from Proton's official source code, running headless on
   your Umbrel so phones, tablets and computers on your network can use Proton Mail
@@ -17,6 +17,10 @@ description: >-
   IMAP listens on port 1143 and SMTP on port 1025 of your Umbrel. Keep them inside
   your network (or reach them through Tailscale): never forward them on your router.
 
+  Bridge updates itself: it downloads Proton's signed updates and the official
+  launcher switches to them, so you don't need to update the app for every Bridge
+  release.
+
   Requires a paid Proton plan. Not affiliated with Proton AG.
 developer: "Caio Ruiz"
 website: "https://github.com/CaioRuizz/ruiz-app-store/tree/master/ruiz-proton-bridge"
@@ -28,4 +32,4 @@ gallery: []
 path: ""
 defaultUsername: ""
 defaultPassword: ""
-releaseNotes: "First release: Proton Mail Bridge 3.27.1 with a web terminal for login."
+releaseNotes: "Bridge now updates itself through Proton's official launcher (signed updates), falling back to the bundled version if an update fails to start."

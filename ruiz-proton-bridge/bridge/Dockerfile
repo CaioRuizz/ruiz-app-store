@@ -11,7 +11,7 @@ RUN apt-get update \
 WORKDIR /src
 RUN git clone --depth 1 --branch "${BRIDGE_VERSION}" https://github.com/ProtonMail/proton-bridge.git . \
  && make build-nogui \
- && mkdir -p /out && install -m 0755 bridge /out/bridge
+ && mkdir -p /out && install -m 0755 bridge proton-bridge /out/
 
 # ttyd (terminal web): binário estático oficial (github.com/tsl0922/ttyd), conferido por SHA-256.
 # O Debian 13 não tem mais o pacote.
@@ -33,9 +33,11 @@ RUN apt-get update \
       ca-certificates libfido2-1 libsecret-1-0 pass gnupg socat tmux tini procps \
  && rm -rf /var/lib/apt/lists/* \
  && useradd --uid 1000 --create-home --home-dir /home/bridge bridge
-COPY --from=build /out/bridge /usr/local/bin/bridge
+# proton-bridge é o launcher oficial: aplica as atualizações automáticas do Proton (assinadas, conferidas
+# com a chave do Proton e guardadas em /data) e, sem atualização mais nova, roda o bridge da imagem.
+COPY --from=build /out/bridge /out/proton-bridge /usr/local/bin/
 COPY --from=ttyd /ttyd /usr/local/bin/ttyd
-COPY start.sh bridge-loop.sh /usr/local/bin/
+COPY start.sh bridge-loop.sh apply-updates.sh /usr/local/bin/
 USER 1000:1000
 # Tudo que o Bridge guarda (cofre, cache, chave GPG e cofre do "pass") fica em /data
 ENV HOME=/data TERM=xterm-256color LANG=C.UTF-8
