@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Ícone próprio (envelope sobre uma ponte); não usa a marca do Proton. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7b5cff"/>
+      <stop offset="1" stop-color="#4a2fd6"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
+  <path d="M40 188 Q128 112 216 188" fill="none" stroke="#ffffff" stroke-opacity=".45" stroke-width="10" stroke-linecap="round"/>
+  <path d="M72 188 V164 M104 188 V146 M152 188 V146 M184 188 V164" stroke="#ffffff" stroke-opacity=".45" stroke-width="8" stroke-linecap="round"/>
+  <rect x="70" y="58" width="116" height="80" rx="12" fill="#ffffff"/>
+  <path d="M76 66 L128 104 L180 66" fill="none" stroke="#4a2fd6" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
