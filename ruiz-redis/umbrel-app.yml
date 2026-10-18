@@ -1,0 +1,28 @@
+manifestVersion: 1
+id: ruiz-redis
+name: Redis
+tagline: In-memory database for caching, queues and sessions, with Redis Insight
+icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-redis/icon.svg
+category: developer-tools
+version: "8.8.3"
+description: >-
+  The official Redis image with persistence (AOF and snapshots) and Redis Insight
+  as the web interface. On first launch, accept Redis Insight's terms and add the
+  database: host "redis", port 6379, user "default" and the password shown by
+  Umbrel for this app.
+
+  Your projects connect on port 6379 of your Umbrel, user "default", with the
+  password shown by Umbrel for this app, for example
+  redis://default:<password>@umbrel.local:6379. Keep the port inside your
+  network (or reach it through Tailscale): never forward it on your router.
+developer: "Caio Ruiz"
+website: "https://github.com/CaioRuizz/ruiz-app-store/tree/master/ruiz-redis"
+dependencies: []
+repo: "https://github.com/CaioRuizz/ruiz-app-store"
+support: "https://github.com/CaioRuizz/ruiz-app-store/issues"
+port: 4833
+gallery: []
+path: ""
+defaultUsername: "default"
+deterministicPassword: true
+releaseNotes: "First release: Redis 8.8.3 with Redis Insight 3.8.0."

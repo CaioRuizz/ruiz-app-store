@@ -1,0 +1,29 @@
+manifestVersion: 1
+id: ruiz-prometheus
+name: Prometheus
+tagline: Metrics and alerting for your Umbrel and your projects
+icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-prometheus/icon.svg
+category: developer-tools
+version: "3.15.0"
+description: >-
+  The official Prometheus image, keeping 90 days of metrics, plus node-exporter
+  with your Umbrel's CPU, memory and disk metrics out of the box.
+
+  Edit data/config/prometheus.yml in the app data to add scrape targets (it has
+  commented examples for RabbitMQ and Jenkins). Apps on your Umbrel can be
+  reached by container name, for example ruiz-rabbitmq_rabbitmq_1:15692.
+
+  To use it in Grafana, add a Prometheus data source with the URL
+  http://ruiz-prometheus_prometheus_1:9090. The web interface stays behind the
+  Umbrel login; only the read-only query API (/api/*) is open to other tools.
+developer: "Caio Ruiz"
+website: "https://github.com/CaioRuizz/ruiz-app-store/tree/master/ruiz-prometheus"
+dependencies: []
+repo: "https://github.com/CaioRuizz/ruiz-app-store"
+support: "https://github.com/CaioRuizz/ruiz-app-store/issues"
+port: 4835
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: "First release: Prometheus 3.15.0 with node-exporter 1.12.1."

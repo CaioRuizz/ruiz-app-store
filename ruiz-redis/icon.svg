@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Ícone próprio (camadas de um banco em memória); não usa a marca Redis. -->
+  <rect width="256" height="256" rx="56" fill="#d82c20"/>
+  <g fill="none" stroke="#ffffff" stroke-width="12" stroke-linejoin="round">
+    <path d="M128 52 L208 88 L128 124 L48 88 Z" fill="#ffffff"/>
+    <path d="M48 128 L128 164 L208 128"/>
+    <path d="M48 168 L128 204 L208 168"/>
+  </g>
+</svg>

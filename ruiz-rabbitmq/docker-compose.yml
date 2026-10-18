@@ -1,0 +1,32 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: ruiz-rabbitmq_rabbitmq_1
+      APP_PORT: 15672
+      # O painel do RabbitMQ tem login próprio e a API HTTP precisa ser acessível por scripts
+      PROXY_AUTH_ADD: "false"
+
+  rabbitmq:
+    image: rabbitmq:4.3.6-management
+    # O RabbitMQ guarda os dados em mnesia/rabbit@<hostname>: um hostname fixo mantém filas,
+    # usuários e mensagens quando o container é recriado (atualizações do app)
+    hostname: ruiz-rabbitmq
+    environment:
+      # Criado só na primeira inicialização; trocar a senha depois, no painel, continua valendo
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: ${APP_PASSWORD:-rabbitmq}
+    volumes:
+      - "${APP_DATA_DIR:-.}/data/rabbitmq:/var/lib/rabbitmq"
+    ports:
+      # AMQP para os seus projetos (rede local e Tailscale); não encaminhe no roteador
+      - "5672:5672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: on-failure
+    stop_grace_period: 1m

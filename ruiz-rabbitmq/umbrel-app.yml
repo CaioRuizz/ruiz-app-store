@@ -1,0 +1,32 @@
+manifestVersion: 1
+id: ruiz-rabbitmq
+name: RabbitMQ
+tagline: Message broker for durable queues between your services
+icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-rabbitmq/icon.svg
+category: developer-tools
+version: "4.3.6"
+description: >-
+  The official RabbitMQ image with the management plugin.
+
+  Log in to the web interface with the user "admin" and the password shown by
+  Umbrel for this app. The password is applied only on the first start, so
+  changing it later in RabbitMQ sticks.
+
+  Your projects connect over AMQP on port 5672 of your Umbrel, for example
+  amqp://admin:<password>@umbrel.local:5672/. Create a separate user and vhost
+  per project in the web interface. Keep the port inside your network (or reach
+  it through Tailscale): never forward it on your router.
+
+  Prometheus metrics are available on port 15692 inside the app network
+  (rabbitmq_prometheus plugin).
+developer: "Caio Ruiz"
+website: "https://github.com/CaioRuizz/ruiz-app-store/tree/master/ruiz-rabbitmq"
+dependencies: []
+repo: "https://github.com/CaioRuizz/ruiz-app-store"
+support: "https://github.com/CaioRuizz/ruiz-app-store/issues"
+port: 4834
+gallery: []
+path: ""
+defaultUsername: "admin"
+deterministicPassword: true
+releaseNotes: "First release: RabbitMQ 4.3.6 with the management interface."

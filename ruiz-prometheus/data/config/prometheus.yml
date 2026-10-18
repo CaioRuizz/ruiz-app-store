@@ -1,0 +1,31 @@
+# Configuração do Prometheus deste app. Este arquivo só é criado na instalação: edite à vontade
+# (data/config/prometheus.yml nos dados do app) e recarregue sem reiniciar com:
+#   curl -X POST http://umbrel.local:4835/-/reload   (pelo navegador logado no Umbrel, ou reinicie o app)
+#
+# Os containers dos apps do Umbrel ficam na mesma rede, então dá para coletar métricas pelo nome do
+# container (<id do app>_<serviço>_1). Exemplos comentados abaixo.
+
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # CPU, memória, disco e sistema de arquivos do Umbrel
+  - job_name: umbrel
+    static_configs:
+      - targets: ["node-exporter:9100"]
+
+  # RabbitMQ (app ruiz-rabbitmq; o plugin rabbitmq_prometheus já vem ativo)
+  # - job_name: rabbitmq
+  #   static_configs:
+  #     - targets: ["ruiz-rabbitmq_rabbitmq_1:15692"]
+
+  # Jenkins (app ruiz-jenkins; instale o plugin "Prometheus metrics" no Jenkins)
+  # - job_name: jenkins
+  #   metrics_path: /prometheus/
+  #   static_configs:
+  #     - targets: ["ruiz-jenkins_jenkins_1:8080"]

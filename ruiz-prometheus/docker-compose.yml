@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: ruiz-prometheus_prometheus_1
+      APP_PORT: 9090
+      # O Prometheus não tem login: a interface fica atrás do login do Umbrel, e só a API de consulta
+      # (somente leitura; a API de administração fica desligada) é liberada para o Grafana e scripts
+      PROXY_AUTH_WHITELIST: "/api/*"
+
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    user: "1000:1000"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=90d
+      # Permite recarregar o prometheus.yml com POST /-/reload (protegido pelo login do Umbrel)
+      - --web.enable-lifecycle
+    volumes:
+      - "${APP_DATA_DIR:-.}/data/config:/etc/prometheus"
+      - "${APP_DATA_DIR:-.}/data/prometheus:/prometheus"
+    depends_on:
+      - node-exporter
+    restart: on-failure
+    stop_grace_period: 1m
+
+  # Métricas do Umbrel (CPU, memória, disco, sistema de arquivos), lendo o host em modo somente leitura.
+  # O tráfego de rede medido é o do container, não o do Umbrel.
+  node-exporter:
+    image: prom/node-exporter:v1.12.1
+    command:
+      - --path.rootfs=/host
+    pid: host
+    volumes:
+      - "/:/host:ro"
+    restart: on-failure
