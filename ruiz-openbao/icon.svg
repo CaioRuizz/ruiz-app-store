@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Ícone próprio (cofre com fechadura); não usa a marca OpenBao. -->
+  <rect width="256" height="256" rx="56" fill="#1f2a44"/>
+  <rect x="56" y="64" width="144" height="128" rx="18" fill="none" stroke="#ffffff" stroke-width="12"/>
+  <circle cx="128" cy="128" r="30" fill="none" stroke="#6ee7b7" stroke-width="12"/>
+  <path d="M128 98 V110 M128 146 V158 M98 128 H110 M146 128 H158" stroke="#6ee7b7" stroke-width="10" stroke-linecap="round"/>
+  <path d="M76 192 V206 M180 192 V206" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+</svg>

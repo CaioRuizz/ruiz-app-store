@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: ruiz-openbao_openbao_1
+      APP_PORT: 8200
+      # O OpenBao tem autenticação própria (tokens, AppRole...) e a API precisa ser acessível pelos
+      # seus projetos, pelo Jenkins e pelo Airflow
+      PROXY_AUTH_ADD: "false"
+
+  openbao:
+    image: openbao/openbao:2.7.1
+    # Mesmo dono dos dados do Umbrel (a imagem usaria o uid 100)
+    user: "1000:1000"
+    entrypoint: ["bao", "server", "-config=/openbao/config/config.hcl"]
+    environment:
+      BAO_ADDR: http://127.0.0.1:8200
+    volumes:
+      - "${APP_DATA_DIR:-.}/data/config:/openbao/config:ro"
+      - "${APP_DATA_DIR:-.}/data/raft:/openbao/data"
+    healthcheck:
+      # Saudável também quando ainda não inicializado ou selado (é o estado normal após reiniciar)
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8200/v1/sys/health?standbyok=true&sealedcode=200&uninitcode=200"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: on-failure
+    stop_grace_period: 30s
+
+  # Desselagem automática OPCIONAL. Por padrão não faz nada: o OpenBao volta selado a cada reinício e
+  # você o dessela pela interface. Se você colocar chaves de desselagem em data/unseal/unseal-keys
+  # (uma por linha, quantas o limite exigir), este serviço as aplica sempre que o OpenBao estiver
+  # selado. É mais cômodo, mas quem tiver acesso aos dados do app passa a conseguir abrir o cofre.
+  unsealer:
+    image: openbao/openbao:2.7.1
+    user: "1000:1000"
+    entrypoint:
+      - sh
+      - -c
+      - |
+        while true; do
+          if [ -s /unseal/unseal-keys ] && wget -qO- "$$BAO_ADDR/v1/sys/seal-status" 2>/dev/null | grep -q '"sealed":true'; then
+            echo "OpenBao selado; aplicando as chaves de data/unseal/unseal-keys"
+            grep -v '^[[:space:]]*$$' /unseal/unseal-keys | while read -r key; do
+              bao operator unseal "$$key" >/dev/null || echo "Falha ao aplicar uma chave"
+            done
+          fi
+          sleep 15
+        done
+    environment:
+      BAO_ADDR: http://openbao:8200
+    volumes:
+      - "${APP_DATA_DIR:-.}/data/unseal:/unseal:ro"
+    depends_on:
+      - openbao
+    restart: on-failure

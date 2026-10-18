@@ -1,0 +1,33 @@
+manifestVersion: 1
+id: ruiz-openbao
+name: OpenBao
+tagline: Secrets manager for your services, the open source fork of HashiCorp Vault
+icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-openbao/icon.svg
+category: developer-tools
+version: "2.7.1"
+description: >-
+  The official OpenBao image with integrated storage (Raft) and the web
+  interface, for secrets that your services read through the API (AppRole,
+  tokens, dynamic credentials).
+
+  On first launch, the interface asks you to initialize OpenBao: it shows the
+  unseal keys and the root token only once. Store them in your password manager.
+
+  After every restart OpenBao starts sealed, and you unseal it in the interface
+  with the unseal keys. Optionally, put the keys in data/unseal/unseal-keys to
+  unseal automatically, trading some security for convenience (see the README).
+
+  Your services reach the API at http://umbrel.local:4836 or, from other Umbrel
+  apps, at http://ruiz-openbao_openbao_1:8200. Keep it inside your network (or
+  reach it through Tailscale): never expose it on the internet.
+developer: "Caio Ruiz"
+website: "https://github.com/CaioRuizz/ruiz-app-store/tree/master/ruiz-openbao"
+dependencies: []
+repo: "https://github.com/CaioRuizz/ruiz-app-store"
+support: "https://github.com/CaioRuizz/ruiz-app-store/issues"
+port: 4836
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: "First release: OpenBao 2.7.1 with integrated storage and optional auto-unseal."
