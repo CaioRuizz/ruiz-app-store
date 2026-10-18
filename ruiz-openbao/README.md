@@ -7,7 +7,7 @@ armazenamento integrado (Raft) e interface web. Serve para segredos que os seus 
 
 1. Abra o app. A interface pede para **inicializar**: escolha o número de chaves e o limite (por exemplo, 3 e 2).
 2. Ela mostra **uma única vez** as chaves de desselagem e o **root token**. Guarde tudo no seu gerenciador de senhas.
-3. Desselamos com as chaves (quantas o limite pedir) e entre com o root token.
+3. Dessele com as chaves (quantas o limite pedir) e entre com o root token.
 
 ## Selagem e reinícios
 
