@@ -5,6 +5,25 @@ O build das imagens roda no Jenkins (http://100.92.14.38:4831, job `github/ruiz-
 e `:latest`, publica no Docker Hub e atualiza as tags das imagens desta loja nos `docker-compose.yml`. Commits
 com `[skip ci]` no título não disparam build. O Jenkins consulta o GitHub a cada 5 minutos.
 
+## Atualização automática das imagens
+
+Todo dia de madrugada (e ao rodar o job manualmente na `master`), o Jenkins executa `scripts/image_updates.py`, que faz
+o papel do Dependabot para as imagens Docker de terceiros:
+
+- Lê as imagens fixadas por versão nos `docker-compose.yml` (`image:`) e `Dockerfile` (`FROM`) de cada app. Imagens
+  flutuantes (`latest`, `alpine`, `node:24-alpine`) e as imagens da própria loja (`caioruizz/ruiz-*`) ficam de fora.
+- Procura no Docker Hub a versão mais nova com o mesmo formato de tag (mesmo sufixo, como `-management` ou
+  `-lts-jdk21`) e a **mesma versão maior**. Versões maiores novas só aparecem como aviso no PR, porque podem exigir
+  migração (por exemplo, Postgres 17 → 18).
+- Abre **um PR por app** na branch `deps/<app>`, com os tags novos, o README do app e a versão do `umbrel-app.yml`
+  ajustados (a mesma da imagem principal, como no Redis, ou o patch seguinte). Se o PR já existe, é atualizado.
+- Depois do merge, o build da `master` roda normalmente e o Umbrel passa a oferecer a atualização do app.
+
+Ajustes em `image-updates.json`: `ignore` (imagens que não devem ser verificadas) e `allow_major` (imagens em que
+versões maiores também viram PR). Para simular sem abrir PRs: `python3 scripts/image_updates.py --dry-run`.
+
+O token da credencial `github` do Jenkins precisa da permissão **Pull requests: Read and write**, além de Contents.
+
 ## Umbrel Community App Store Template
 
 This repository is a template to create an Umbrel Community App Store. These additional app stores allow developers to distribute applications without submitting to the [Official Umbrel App Store](https://github.com/getumbrel/umbrel-apps).

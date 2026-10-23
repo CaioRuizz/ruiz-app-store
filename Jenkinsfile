@@ -1,8 +1,10 @@
 // CI/CD no Jenkins (https://jenkins.caioruiz.com): builda as imagens dos apps (ruiz-*/*/Dockerfile),
 // publica no Docker Hub com a versão do umbrel-app.yml e atualiza as tags nos docker-compose.yml.
 // As imagens são construídas no Docker isolado do app do Jenkins, pelo socket montado no agente.
+// Todo dia, na master, verifica atualizações das imagens de terceiros e abre PRs (scripts/image_updates.py).
 pipeline {
   agent { label 'docker' }
+  triggers { cron(env.BRANCH_NAME == 'master' ? 'H 6 * * *' : '') }
   options {
     timestamps()
     ansiColor('xterm')
@@ -17,14 +19,19 @@ pipeline {
           // commits do próprio CI (atualização de versões) não disparam outro build;
           // só o título do commit conta, para um "[skip ci]" citado no corpo não pular o build
           env.SKIP_CI = sh(script: "git log -1 --pretty=%s | grep -qF '[skip ci]' && echo true || echo false", returnStdout: true).trim()
-          if (env.SKIP_CI == 'true') {
+          // a execução diária só verifica atualizações de imagens; não refaz as imagens da loja
+          env.TIMER = currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause') ? 'true' : 'false'
+          env.MANUAL = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause') ? 'true' : 'false'
+          if (env.TIMER == 'true') {
+            currentBuild.description = 'Verificação diária de imagens'
+          } else if (env.SKIP_CI == 'true') {
             currentBuild.description = 'Pulado: [skip ci]'
           }
         }
       }
     }
     stage('Build e push das imagens') {
-      when { allOf { branch 'master'; environment name: 'SKIP_CI', value: 'false' } }
+      when { allOf { branch 'master'; environment name: 'SKIP_CI', value: 'false'; environment name: 'TIMER', value: 'false' } }
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DH_USER', passwordVariable: 'DH_TOKEN')]) {
           sh '''
@@ -44,7 +51,7 @@ pipeline {
       }
     }
     stage('Atualizar versões nos docker-compose') {
-      when { allOf { branch 'master'; environment name: 'SKIP_CI', value: 'false' } }
+      when { allOf { branch 'master'; environment name: 'SKIP_CI', value: 'false'; environment name: 'TIMER', value: 'false' } }
       steps {
         withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
           sh '''
@@ -66,6 +73,19 @@ pipeline {
             git -c credential.helper='!f() { echo username=$GH_USER; echo password=$GH_TOKEN; }; f' \
               push -q https://github.com/CaioRuizz/ruiz-app-store.git HEAD:master
             echo "Versões atualizadas e enviadas."
+          '''
+        }
+      }
+    }
+    stage('Atualizações de imagens') {
+      // diária (cron) ou ao rodar o job manualmente na master
+      when { allOf { branch 'master'; anyOf { environment name: 'TIMER', value: 'true'; environment name: 'MANUAL', value: 'true' } } }
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
+          sh '''
+            set -eu
+            git fetch -q origin +refs/heads/master:refs/remotes/origin/master
+            python3 scripts/image_updates.py
           '''
         }
       }
