@@ -134,7 +134,7 @@ services:
   # /var/run/dind/docker.sock, sem porta de rede e sem acesso ao Docker que roda os apps
   # do Umbrel. O socket pertence ao grupo 0, o grupo do usuário do Airflow.
   docker:
-    image: docker:29.8.2-dind
+    image: docker:29.9.2-dind
     privileged: true
     command: ["dockerd", "--host=unix:///var/run/dind/docker.sock", "--group=0"]
     environment:

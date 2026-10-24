@@ -4,7 +4,7 @@ name: Airflow
 tagline: Schedule and monitor data pipelines, with an isolated Docker for your tasks
 icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-airflow/icon.svg
 category: developer-tools
-version: "1.1.0"
+version: "1.1.1"
 description: >-
   The official Apache Airflow 3 image, ready to run on your Umbrel: PostgreSQL
   for metadata, the LocalExecutor, and a separate Docker daemon
@@ -31,4 +31,4 @@ gallery: []
 path: ""
 defaultUsername: "admin"
 deterministicPassword: true
-releaseNotes: "New DAG bundles page in the Airflow menu (Admin): add Git repositories or local folders as DAG sources, test access, and apply the change without editing files or restarting the app in Umbrel."
+releaseNotes: "Updates docker 29.9.2-dind."
