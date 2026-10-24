@@ -1,6 +1,6 @@
 # Redis (Umbrel)
 
-A imagem oficial do Redis (`redis:8.8.3`), com persistência AOF + snapshots, e o Redis Insight como interface web.
+A imagem oficial do Redis (`redis:8.10.2`), com persistência AOF + snapshots, e o Redis Insight como interface web.
 
 - **Conexão dos projetos:** porta **6379** do Umbrel, usuário `default` e a senha que o Umbrel mostra para o app
   (`redis://default:<senha>@umbrel.local:6379`). Só na rede local e no Tailscale; não encaminhe a porta no roteador.
