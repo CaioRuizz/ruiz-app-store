@@ -4,7 +4,7 @@ name: Prometheus
 tagline: Metrics and alerting for your Umbrel and your projects
 icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-prometheus/icon.svg
 category: developer-tools
-version: "3.15.0"
+version: "3.15.1"
 description: >-
   The official Prometheus image, keeping 90 days of metrics, plus node-exporter
   with your Umbrel's CPU, memory and disk metrics out of the box.
@@ -26,4 +26,4 @@ gallery: []
 path: ""
 defaultUsername: ""
 defaultPassword: ""
-releaseNotes: "First release: Prometheus 3.15.0 with node-exporter 1.12.1."
+releaseNotes: "Updates prom/prometheus v3.15.1."
