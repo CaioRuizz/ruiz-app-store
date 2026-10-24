@@ -71,3 +71,17 @@ registry HTTP da rede local:
 Depois de criar ou editar o arquivo, reinicie o app. Não use a chave `hosts`: o socket já é definido no
 `docker-compose.yml`, e as duas configurações juntas impedem o Docker de iniciar. Um JSON inválido também
 impede o início; confira com `docker logs`.
+
+## Limpeza automática do Docker isolado
+
+O serviço `docker-cleanup` roda uma vez por dia (o primeiro ciclo 10 minutos depois de o app iniciar) e remove do
+Docker isolado:
+
+- containers parados há mais de 24 horas;
+- imagens criadas há mais de 7 dias (`CLEANUP_IMAGES_UNUSED_FOR`) que nenhum container esteja usando;
+- volumes anônimos sem uso;
+- o cache de build acima de 10 GB (`CLEANUP_BUILD_CACHE_MAX`).
+
+Nada em uso é apagado: o que for removido é baixado ou reconstruído de novo quando precisar (o primeiro build
+depois da limpeza fica um pouco mais lento). Os valores ficam no `docker-compose.yml`, e o resultado de cada
+limpeza aparece no log do serviço (`docker logs <app>_docker-cleanup_1`).

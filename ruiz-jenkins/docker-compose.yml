@@ -55,3 +55,36 @@ services:
     networks:
       - ruiz-jenkins_network
     restart: on-failure
+
+  # Limpeza automática do Docker isolado, uma vez por dia: containers parados há mais de 24 h, imagens
+  # criadas há mais de CLEANUP_IMAGES_UNUSED_FOR que nenhum container esteja usando, volumes anônimos sem
+  # uso e o cache de build acima de CLEANUP_BUILD_CACHE_MAX. Nada em uso é apagado; o que for removido é
+  # baixado ou reconstruído de novo quando precisar.
+  docker-cleanup:
+    image: docker:29.8.2-dind
+    entrypoint:
+      - sh
+      - -c
+      - |
+        sleep 600
+        while true; do
+          echo "== Limpeza do Docker isolado ($$(date '+%F %T'))"
+          docker container prune -f --filter "until=24h"
+          docker image prune -af --filter "until=$${CLEANUP_IMAGES_UNUSED_FOR}"
+          docker builder prune -af --max-used-space "$${CLEANUP_BUILD_CACHE_MAX}"
+          docker volume prune -f
+          docker system df
+          sleep $$(( $${CLEANUP_INTERVAL_HOURS} * 3600 ))
+        done
+    environment:
+      DOCKER_HOST: unix:///var/run/dind/docker.sock
+      CLEANUP_INTERVAL_HOURS: "24"
+      CLEANUP_IMAGES_UNUSED_FOR: "168h"
+      CLEANUP_BUILD_CACHE_MAX: "10GB"
+    volumes:
+      - "${APP_DATA_DIR:-./umbrel-data}/data/docker-socket:/var/run/dind"
+    depends_on:
+      - docker
+    networks:
+      - ruiz-jenkins_network
+    restart: on-failure
