@@ -41,7 +41,7 @@ services:
   # de rede e sem acesso ao Docker que roda os apps do Umbrel. O socket pertence ao grupo 1000,
   # o mesmo usuário do Jenkins.
   docker:
-    image: docker:29.8.2-dind
+    image: docker:29.9.2-dind
     privileged: true
     command: ["dockerd", "--host=unix:///var/run/dind/docker.sock", "--group=1000"]
     environment:

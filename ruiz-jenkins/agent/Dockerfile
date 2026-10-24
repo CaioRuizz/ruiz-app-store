@@ -1,7 +1,7 @@
 # Agente de build do Jenkins: a imagem oficial jenkins/agent + Python 3 + CLI do Docker e buildx.
 # A nuvem "dind" do Jenkins cria um container desta imagem por build, com o socket do Docker isolado
 # do app montado em /var/run/docker.sock (nunca o Docker que roda os apps do Umbrel).
-FROM jenkins/agent:3391.va_37fa_a_305d6d-5-jdk21
+FROM jenkins/agent:3391.va_37fa_a_305d6d-6-jdk21
 
 USER root
 

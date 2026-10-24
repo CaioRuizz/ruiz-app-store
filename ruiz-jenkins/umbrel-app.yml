@@ -4,7 +4,7 @@ name: Jenkins
 tagline: Self-hosted CI/CD server with an isolated Docker for your pipelines
 icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-jenkins/icon.svg
 category: developer-tools
-version: "1.0.3"
+version: "1.0.4"
 description: >-
   The official Jenkins LTS image, ready to run on your Umbrel, plus a separate
   Docker daemon (Docker-in-Docker) for your builds.
@@ -27,4 +27,4 @@ gallery: []
 path: ""
 defaultUsername: "admin"
 deterministicPassword: true
-releaseNotes: "The isolated Docker now reads an optional daemon.json from data/docker-config, for example to allow an HTTP registry on your network."
+releaseNotes: "Updates docker 29.9.2-dind, jenkins/agent 3391.va_37fa_a_305d6d-6-jdk21."
