@@ -21,7 +21,7 @@ services:
 
   jenkins:
     # Imagem oficial do Jenkins, sem customização
-    image: jenkins/jenkins:2.580.1-lts-jdk21
+    image: jenkins/jenkins:2.580.2-lts-jdk21
     environment:
       # Senha do app gerada pelo Umbrel; init.groovy.d/umbrel-password.groovy a usa como senha inicial
       APP_PASSWORD: ${APP_PASSWORD}
@@ -41,7 +41,7 @@ services:
   # de rede e sem acesso ao Docker que roda os apps do Umbrel. O socket pertence ao grupo 1000,
   # o mesmo usuário do Jenkins.
   docker:
-    image: docker:29.8.2-dind
+    image: docker:29.9.2-dind
     privileged: true
     command: ["dockerd", "--host=unix:///var/run/dind/docker.sock", "--group=1000"]
     environment:
@@ -61,7 +61,7 @@ services:
   # uso e o cache de build acima de CLEANUP_BUILD_CACHE_MAX. Nada em uso é apagado; o que for removido é
   # baixado ou reconstruído de novo quando precisar.
   docker-cleanup:
-    image: docker:29.8.2-dind
+    image: docker:29.9.2-dind
     entrypoint:
       - sh
       - -c
