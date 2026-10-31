@@ -1,6 +1,6 @@
 # Prometheus (Umbrel)
 
-A imagem oficial do Prometheus (`prom/prometheus:v3.15.0`), guardando 90 dias de métricas, com o node-exporter
+A imagem oficial do Prometheus (`prom/prometheus:v3.15.1`), guardando 90 dias de métricas, com o node-exporter
 oficial (`prom/node-exporter:v1.12.1`) para as métricas do Umbrel.
 
 - **Configuração:** `data/config/prometheus.yml`, criado na instalação e nunca sobrescrito nas atualizações. Tem
