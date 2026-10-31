@@ -1,6 +1,6 @@
 # RabbitMQ (Umbrel)
 
-A imagem oficial do RabbitMQ com o plugin de gerenciamento (`rabbitmq:4.3.6-management`).
+A imagem oficial do RabbitMQ com o plugin de gerenciamento (`rabbitmq:4.4.0-management`).
 
 - **Interface web:** usuário `admin` e a senha que o Umbrel mostra para o app, aplicada só na primeira
   inicialização (trocar depois, no painel, continua valendo). O login do Umbrel fica desligado porque o painel tem

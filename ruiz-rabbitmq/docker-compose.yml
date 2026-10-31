@@ -9,7 +9,7 @@ services:
       PROXY_AUTH_ADD: "false"
 
   rabbitmq:
-    image: rabbitmq:4.3.6-management
+    image: rabbitmq:4.4.0-management
     # O RabbitMQ guarda os dados em mnesia/rabbit@<hostname>: um hostname fixo mantém filas,
     # usuários e mensagens quando o container é recriado (atualizações do app)
     hostname: ruiz-rabbitmq
