@@ -17,7 +17,7 @@ services:
     restart: on-failure
 
   nginx:
-    image: caioruizz/ruiz-gitea-runner-nginx:1.3.0
+    image: caioruizz/ruiz-gitea-runner-nginx:1.4.0
     depends_on:
       - backend
       - frontend
@@ -26,7 +26,7 @@ services:
     restart: on-failure
 
   backend:
-    image: caioruizz/ruiz-gitea-runner-backend:1.3.0
+    image: caioruizz/ruiz-gitea-runner-backend:1.4.0
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -44,7 +44,7 @@ services:
     restart: on-failure
 
   frontend:
-    image: caioruizz/ruiz-gitea-runner-frontend:1.3.0
+    image: caioruizz/ruiz-gitea-runner-frontend:1.4.0
     environment:
       - NODE_ENV=production
     networks:
