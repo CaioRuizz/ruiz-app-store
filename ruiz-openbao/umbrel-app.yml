@@ -4,7 +4,7 @@ name: OpenBao
 tagline: Secrets manager for your services, the open source fork of HashiCorp Vault
 icon: https://raw.githubusercontent.com/CaioRuizz/ruiz-app-store/master/ruiz-openbao/icon.svg
 category: developer-tools
-version: "2.7.1"
+version: "2.7.2"
 description: >-
   The official OpenBao image with integrated storage (Raft) and the web
   interface, for secrets that your services read through the API (AppRole,
@@ -30,4 +30,4 @@ gallery: []
 path: ""
 defaultUsername: ""
 defaultPassword: ""
-releaseNotes: "First release: OpenBao 2.7.1 with integrated storage and optional auto-unseal."
+releaseNotes: "Updates openbao/openbao 2.7.2."

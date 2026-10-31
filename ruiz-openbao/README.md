@@ -1,6 +1,6 @@
 # OpenBao (Umbrel)
 
-A imagem oficial do [OpenBao](https://openbao.org) (`openbao/openbao:2.7.1`), o fork aberto do HashiCorp Vault, com
+A imagem oficial do [OpenBao](https://openbao.org) (`openbao/openbao:2.7.2`), o fork aberto do HashiCorp Vault, com
 armazenamento integrado (Raft) e interface web. Serve para segredos que os seus serviços buscam pela API.
 
 ## Primeiro acesso

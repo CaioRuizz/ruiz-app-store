@@ -10,7 +10,7 @@ services:
       PROXY_AUTH_ADD: "false"
 
   openbao:
-    image: openbao/openbao:2.7.1
+    image: openbao/openbao:2.7.2
     # Mesmo dono dos dados do Umbrel (a imagem usaria o uid 100)
     user: "1000:1000"
     entrypoint: ["bao", "server", "-config=/openbao/config/config.hcl"]
@@ -34,7 +34,7 @@ services:
   # (uma por linha, quantas o limite exigir), este serviço as aplica sempre que o OpenBao estiver
   # selado. É mais cômodo, mas quem tiver acesso aos dados do app passa a conseguir abrir o cofre.
   unsealer:
-    image: openbao/openbao:2.7.1
+    image: openbao/openbao:2.7.2
     user: "1000:1000"
     entrypoint:
       - sh
