@@ -39,6 +39,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r dockerfile; do
             dir="${dockerfile%/Dockerfile}"
+            dir="${dir#./}"
             app="${dir%%/*}"
             image="$DH_USER/$(printf '%s' "$dir" | tr / -)"
             version="$(sed -nE 's/^[[:space:]]*version:[[:space:]]*"?([^" ]+)"?.*/\1/p' "$app/umbrel-app.yml" | head -n 1)"
