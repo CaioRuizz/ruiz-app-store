@@ -236,7 +236,7 @@ def pr_text(plan) -> tuple[str, str]:
         title = f"deps({plan['app']}): {image} {tag} → {new}"
     else:
         title = f"deps({plan['app']}): atualiza {len(rows)} imagens"
-    body = ["Atualização automática das imagens Docker (verificação diária do Jenkins).", "",
+    body = ["Atualização automática das imagens Docker (verificação diária pelo GitHub Actions).", "",
             "| Imagem | Atual | Nova |", "| --- | --- | --- |"]
     body += [f"| `{image}` | `{tag}` | `{new}` |" for image, tag, new in rows]
     body += ["", f"Versão do app: `{plan['version']}` → `{plan['new_version']}` "
@@ -264,7 +264,8 @@ def publish(plan, dry_run: bool) -> None:
     git("clean", "-fdq", "--", app)
     apply_plan(plan)
     git("add", "-A", app)
-    git("-c", "user.name=Jenkins", "-c", "user.email=jenkins@caioruiz.com",
+    git("-c", "user.name=github-actions[bot]",
+        "-c", "user.email=41898282+github-actions[bot]@users.noreply.github.com",
         "commit", "-q", "-m", title)
     # Se a branch já existe no GitHub com o mesmo conteúdo, não faz nada
     existing = git(*auth, "ls-remote", remote, f"refs/heads/{branch}")

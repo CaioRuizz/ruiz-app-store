@@ -1,14 +1,23 @@
 ## CI/CD
 
-O build das imagens roda no Jenkins (http://100.92.14.38:4831, job `github/ruiz-app-store`), definido no
-`Jenkinsfile` da raiz: para cada `ruiz-*/*/Dockerfile`, gera `caioruizz/<app>-<pasta>:<versão do umbrel-app.yml>`
-e `:latest`, publica no Docker Hub e atualiza as tags das imagens desta loja nos `docker-compose.yml`. Commits
-com `[skip ci]` no título não disparam build. O Jenkins consulta o GitHub a cada 5 minutos.
+Os workflows de CI/CD estão em `.github/workflows/`:
+
+- `build-publish.yml` roda em cada push para `master`. Para cada `ruiz-*/*/Dockerfile`, publica
+  `caioruizz/<app>-<pasta>:<versão do umbrel-app.yml>` e `:latest` no Docker Hub e atualiza as tags das imagens da loja
+  nos `docker-compose.yml`. Commits com `[skip ci]` no título não disparam o build. Configure os secrets
+  `DOCKERHUB_USERNAME` e `DOCKERHUB_TOKEN` no repositório.
+- `image-updates.yml` verifica diariamente às 06:00 no horário de São Paulo (09:00 UTC) e também pode ser
+  executado manualmente pela aba **Actions**. Ele atualiza ou abre PRs para novas versões de imagens de terceiros.
+  O workflow usa o `GITHUB_TOKEN` com permissões de conteúdo e pull requests; habilite em **Settings → Actions →
+  General** a opção **Allow GitHub Actions to create and approve pull requests**.
+
+O `GITHUB_TOKEN` dos workflows não dispara novas execuções quando usado para enviar commits ou branches. A
+atualização diária continua limitada às imagens e tags descritas em `image-updates.json`.
 
 ## Atualização automática das imagens
 
-Todo dia de madrugada (e ao rodar o job manualmente na `master`), o Jenkins executa `scripts/image_updates.py`, que faz
-o papel do Dependabot para as imagens Docker de terceiros:
+Todo dia às 06:00 no horário de São Paulo (e ao rodar manualmente o workflow na `master`), o GitHub Actions executa
+`scripts/image_updates.py`, que faz o papel do Dependabot para as imagens Docker de terceiros:
 
 - Lê as imagens fixadas por versão nos `docker-compose.yml` (`image:`) e `Dockerfile` (`FROM`) de cada app. Imagens
   flutuantes (`latest`, `alpine`, `node:24-alpine`) e as imagens da própria loja (`caioruizz/ruiz-*`) ficam de fora.
@@ -21,8 +30,6 @@ o papel do Dependabot para as imagens Docker de terceiros:
 
 Ajustes em `image-updates.json`: `ignore` (imagens que não devem ser verificadas) e `allow_major` (imagens em que
 versões maiores também viram PR). Para simular sem abrir PRs: `python3 scripts/image_updates.py --dry-run`.
-
-O token da credencial `github` do Jenkins precisa da permissão **Pull requests: Read and write**, além de Contents.
 
 ## Umbrel Community App Store Template
 
