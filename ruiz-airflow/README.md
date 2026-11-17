@@ -1,6 +1,6 @@
 # Airflow (Umbrel)
 
-A imagem oficial do Apache Airflow 3 (`apache/airflow:3.3.2-python3.12`), sem customização, com PostgreSQL 17
+A imagem oficial do Apache Airflow 3 (`apache/airflow:3.4.0-python3.12`), sem customização, com PostgreSQL 17
 para os metadados, `LocalExecutor` e um daemon Docker isolado para as tarefas que rodam em containers.
 
 ## Serviços
