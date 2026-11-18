@@ -36,7 +36,7 @@ services:
     stop_grace_period: 30s
 
   redisinsight:
-    image: redis/redisinsight:3.8.0
+    image: redis/redisinsight:3.10.1
     # Na primeira abertura, aceite os termos e adicione o banco: host "redis", porta 6379,
     # usuário "default" e a senha do Umbrel para este app
     volumes:
