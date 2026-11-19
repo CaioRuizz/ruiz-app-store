@@ -10,7 +10,7 @@ services:
       PROXY_AUTH_WHITELIST: "/api/*"
 
   prometheus:
-    image: prom/prometheus:v3.15.1
+    image: prom/prometheus:v3.16.0
     user: "1000:1000"
     command:
       - --config.file=/etc/prometheus/prometheus.yml
@@ -29,7 +29,7 @@ services:
   # Métricas do Umbrel (CPU, memória, disco, sistema de arquivos), lendo o host em modo somente leitura.
   # O tráfego de rede medido é o do container, não o do Umbrel.
   node-exporter:
-    image: prom/node-exporter:v1.12.1
+    image: prom/node-exporter:v1.13.1
     command:
       - --path.rootfs=/host
     pid: host
