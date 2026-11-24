@@ -8,7 +8,7 @@ services:
       # O Redis Insight não tem login próprio: o login do Umbrel fica ligado (padrão).
 
   redis:
-    image: redis:8.10.3
+    image: redis:8.12.0
     # Mesmo dono dos dados do Umbrel (a imagem usaria o uid 999, sem permissão na pasta)
     user: "1000:1000"
     # Senha = senha do Umbrel para este app; AOF + snapshots para não perder dados ao reiniciar
@@ -36,7 +36,7 @@ services:
     stop_grace_period: 30s
 
   redisinsight:
-    image: redis/redisinsight:3.8.0
+    image: redis/redisinsight:3.10.2
     # Na primeira abertura, aceite os termos e adicione o banco: host "redis", porta 6379,
     # usuário "default" e a senha do Umbrel para este app
     volumes:
