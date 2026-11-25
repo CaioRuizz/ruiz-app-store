@@ -1,6 +1,6 @@
 # Jenkins (Umbrel)
 
-A imagem oficial do Jenkins LTS (`jenkins/jenkins:2.580.2-lts-jdk21`), sem customização, mais um daemon
+A imagem oficial do Jenkins LTS (`jenkins/jenkins:2.580.3-lts-jdk21`), sem customização, mais um daemon
 Docker isolado para os builds.
 
 ## Primeiro acesso
